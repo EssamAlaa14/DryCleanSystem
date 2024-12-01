@@ -1,4 +1,5 @@
-﻿using Application.Common.Interfaces.Infrastructure;
+﻿using Application.Common.Exceptions;
+using Application.Common.Interfaces.Infrastructure;
 using Domain.Entities.Base;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -17,9 +18,14 @@ namespace Infrastructure.Data.Repositories
         }
 
         // Get Methods
-        public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            return await _dbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            var entity = await _dbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            if (entity == null)
+            {
+                throw new NotFoundException(typeof(T).Name, id);
+            }
+            return entity;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)

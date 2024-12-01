@@ -1,21 +1,51 @@
-using System.Diagnostics;
+using Application.Features.Customers.Commands.CreateCustomer;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using WebApp.Models;
 
 namespace WebApp.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController(
+        ILogger<HomeController> logger,
+        IMediator mediator
+        ) : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<HomeController> _logger = logger;
+        private readonly IMediator _mediator = mediator;
 
         public IActionResult Index()
         {
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateCustomerCommand command)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(command); // Return the view with validation messages
+            }
+
+            try
+            {
+                var customerId = await _mediator.Send(command);
+                TempData["SuccessMessage"] = $"Customer created successfully with ID: {customerId}";
+                return RedirectToAction("Create");
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions and display error messages
+                ModelState.AddModelError(string.Empty, $"An error occurred: {ex.Message}");
+                return View(command);
+            }
         }
 
         public IActionResult Privacy()

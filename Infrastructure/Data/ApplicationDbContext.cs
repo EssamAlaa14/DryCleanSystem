@@ -1,7 +1,9 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Base;
+using Domain.Entities.Orders;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System.Linq.Expressions;
 
 namespace Infrastructure.Data
@@ -11,6 +13,9 @@ namespace Infrastructure.Data
         ) : DbContext(options)
     {
         public DbSet<Customer> Customers { get; set; } = null!;
+        public DbSet<Order> Orders { get; set; } = null!;
+        public DbSet<OrderItem> OrderItems { get; set; } = null!;
+        public DbSet<CleaningType> CleaningTypes { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,31 +41,39 @@ namespace Infrastructure.Data
                     // Set default value for CreatedAt and UpdatedAt
                     modelBuilder.Entity(entityType.ClrType).Property(nameof(BaseEntity.CreatedAt))
                         .IsRequired()
-                        .HasDefaultValueSql("GETUTCDATE()"); // SQL Server default value
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     modelBuilder.Entity(entityType.ClrType).Property(nameof(BaseEntity.UpdatedAt))
                         .IsRequired()
-                        .HasDefaultValueSql("GETUTCDATE()"); // SQL Server default value
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     modelBuilder.Entity(entityType.ClrType).Property(nameof(BaseEntity.RecordStatus))
                         .IsRequired()
                         .HasDefaultValue(RecordStatus.Enabled);
 
                     // Dynamically build a lambda expression for the global query filter
-                    var parameter = Expression.Parameter(entityType.ClrType, "e");
-                    var property = Expression.Property(parameter, nameof(BaseEntity.RecordStatus));
-                    var comparison = Expression.NotEqual(
-                        property,
-                        Expression.Constant(RecordStatus.Deleted)
-                    );
-
-                    var lambda = Expression.Lambda(comparison, parameter);
-
-                    modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+                    modelBuilder.Entity(entityType.ClrType)
+                        .HasQueryFilter(GenerateNonDeletedRecordStatusLambda(entityType));
                 }
             }
 
+            modelBuilder.HasSequence<long>("InvoiceNumberSequence")
+                .StartsAt(1)
+                .IncrementsBy(1);
+
             base.OnModelCreating(modelBuilder);
+        }
+
+        private static LambdaExpression GenerateNonDeletedRecordStatusLambda(IMutableEntityType entityType)
+        {
+            var parameter = Expression.Parameter(entityType.ClrType, "e");
+            var property = Expression.Property(parameter, nameof(BaseEntity.RecordStatus));
+            var comparison = Expression.NotEqual(
+                property,
+                Expression.Constant(RecordStatus.Deleted)
+            );
+
+            return Expression.Lambda(comparison, parameter);
         }
     }
 }

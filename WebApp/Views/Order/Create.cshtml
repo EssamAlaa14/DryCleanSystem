@@ -1,0 +1,207 @@
+﻿@using Domain.Enums
+@model WebApp.ViewModels.CreateOrderViewModel;
+
+<h1>Create Order</h1>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label for="customerSearch">Search Customer</label>
+        <input type="text"
+               id="customerSearch"
+               class="form-control"
+               placeholder="Search by name or phone"
+               onkeyup="filterCustomers()" />
+    </div>
+
+    <div class="form-group">
+        <label for="SelectedCustomerId">Select Existing Customer</label>
+        <select asp-for="SelectedCustomerId" class="form-control" id="customerDropdown" onchange="toggleNewCustomerForm()">
+            <option value="">-- Select Customer --</option>
+            @foreach (var customer in Model.Customers)
+            {
+                <option value="@customer.Id">@customer.Name (@customer.PrimaryPhone)</option>
+            }
+        </select>
+    </div>
+
+    <!-- New Customer Form -->
+    <div id="newCustomerForm" style="display: none;">
+        <h4>New Customer Information</h4>
+        <div class="form-group">
+            <label asp-for="NewCustomer.Name"></label>
+            <input asp-for="NewCustomer.Name" class="form-control" />
+            <span asp-validation-for="NewCustomer.Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.PrimaryPhone"></label>
+            <input asp-for="NewCustomer.PrimaryPhone" class="form-control" />
+            <span asp-validation-for="NewCustomer.PrimaryPhone" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.SecondaryPhone"></label>
+            <input asp-for="NewCustomer.SecondaryPhone" class="form-control" />
+            <span asp-validation-for="NewCustomer.SecondaryPhone" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.ApartmentNumber"></label>
+            <input asp-for="NewCustomer.ApartmentNumber" class="form-control" />
+            <span asp-validation-for="NewCustomer.ApartmentNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.FloorNumber"></label>
+            <input asp-for="NewCustomer.FloorNumber" class="form-control" />
+            <span asp-validation-for="NewCustomer.FloorNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.BuildingName"></label>
+            <input asp-for="NewCustomer.BuildingName" class="form-control" />
+            <span asp-validation-for="NewCustomer.BuildingName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.Street"></label>
+            <input asp-for="NewCustomer.Street" class="form-control" />
+            <span asp-validation-for="NewCustomer.Street" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.District"></label>
+            <input asp-for="NewCustomer.District" class="form-control" />
+            <span asp-validation-for="NewCustomer.District" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.City"></label>
+            <input asp-for="NewCustomer.City" class="form-control" />
+            <span asp-validation-for="NewCustomer.City" class="text-danger"></span>
+        </div>
+    </div>
+
+    <hr />
+
+    <h4>Order Details</h4>
+
+    <!-- Order Type -->
+    <div class="form-group">
+        <label>Order Type</label>
+        <div>
+            @foreach (var orderType in Enum.GetValues(typeof(OrderType)).Cast<OrderType>())
+            {
+                <label>
+                    <input type="radio" name="Order.OrderType" value="@((int)orderType)" onchange="toggleCleaningTypes()" />
+                    @orderType
+                </label>
+            }
+        </div>
+    </div>
+
+    <!-- Cleaning Types (only for Clothes) -->
+    <div id="cleaningTypeOptions" style="display: none;">
+        <h5>Cleaning Types</h5>
+        @foreach (var cleaningType in Model.CleaningTypeOptions)
+        {
+            <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       name="Order.Items[0].CleaningTypeIds"
+                       value="@cleaningType.Id"
+                       id="cleaningType_@cleaningType.Id" />
+                <label class="form-check-label" for="cleaningType_@cleaningType.Id">
+                    @cleaningType.Name (@cleaningType.NameArabic)
+                </label>
+            </div>
+        }
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Order.DeliveryDate"></label>
+        <input asp-for="Order.DeliveryDate" class="form-control" type="date" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Order.Notes"></label>
+        <textarea asp-for="Order.Notes" class="form-control"></textarea>
+    </div>
+
+    <h4>Order Items</h4>
+    <div id="orderItemsContainer">
+        @for (var i = 0; i < Model.Items.Count; i++)
+        {
+            <div class="order-item" id="orderItem_@i">
+                <h5>Order Item @i</h5>
+                <div class="form-group">
+                    <label asp-for="@Model.Items[i].Quantity"></label>
+                    <input asp-for="@Model.Items[i].Quantity" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="@Model.Items[i].SingleQuantityPrice"></label>
+                    <input asp-for="@Model.Items[i].SingleQuantityPrice" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="@Model.Items[i].Color"></label>
+                    <input asp-for="@Model.Items[i].Color" class="form-control" />
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeOrderItem(@i)">Remove</button>
+            </div>
+        }
+    </div>
+    <button type="button" class="btn btn-secondary" onclick="addOrderItem()">Add Item</button>
+
+
+    <button type="submit" class="btn btn-primary">Create Order</button>
+</form>
+
+<script>
+    function filterCustomers() {
+        const searchField = document.getElementById('customerSearch');
+        const searchValue = searchField.value.toLowerCase();
+        const dropdown = document.getElementById('customerDropdown');
+        const options = dropdown.options;
+
+        for (let i = 0; i < options.length; i++) {
+            const optionText = options[i].text.toLowerCase();
+            options[i].style.display = optionText.includes(searchValue) ? '' : 'none';
+        }
+    }
+
+    function toggleNewCustomerForm() {
+        const dropdown = document.getElementById('customerDropdown');
+        const newCustomerForm = document.getElementById('newCustomerForm');
+        newCustomerForm.style.display = dropdown.value === "" ? "block" : "none";
+    }
+
+    function toggleCleaningTypes() {
+        const orderType = document.querySelector('input[name="Order.OrderType"]:checked').value;
+        const cleaningTypeOptions = document.getElementById('cleaningTypeOptions');
+        cleaningTypeOptions.style.display = orderType === "1" ? "block" : "none"; // "1" corresponds to Clothes
+    }
+
+    let orderItemIndex = @Model.Items.Count;
+
+    function addOrderItem() {
+        const container = document.getElementById('orderItemsContainer');
+        const itemHtml = `
+            <div class="order-item" id="orderItem_${orderItemIndex}">
+                <h5>Order Item ${orderItemIndex}</h5>
+                <div class="form-group">
+                    <label for="Items_${orderItemIndex}__Quantity">Quantity</label>
+                    <input id="Items_${orderItemIndex}__Quantity" name="Items[${orderItemIndex}].Quantity" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Items_${orderItemIndex}__SingleQuantityPrice">Single Quantity Price</label>
+                    <input id="Items_${orderItemIndex}__SingleQuantityPrice" name="Items[${orderItemIndex}].SingleQuantityPrice" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Items_${orderItemIndex}__Color">Color</label>
+                    <input id="Items_${orderItemIndex}__Color" name="Items[${orderItemIndex}].Color" class="form-control" />
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeOrderItem(${orderItemIndex})">Remove</button>
+            </div>`;
+        container.insertAdjacentHTML('beforeend', itemHtml);
+        orderItemIndex++;
+    }
+
+    function removeOrderItem(index) {
+        const item = document.getElementById(`orderItem_${index}`);
+        if (item) {
+            item.remove();
+        }
+    }
+</script>

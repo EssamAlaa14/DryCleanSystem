@@ -5,7 +5,7 @@ namespace Application.Common.Interfaces.Infrastructure
 {
     public interface IRepository<T> where T : BaseEntity
     {
-        Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
         Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
         Task<IEnumerable<T>> GetByPredicateAsync(
             Expression<Func<T, bool>> predicate,
