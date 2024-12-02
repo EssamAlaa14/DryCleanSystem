@@ -84,7 +84,7 @@ namespace Application.Features.Orders.Commands.CreateOrder
             {
                 // Handle Customer
                 Customer customer;
-                if (request.IsNewCustomer && request.SelectedCustomerId.HasValue)
+                if (!request.IsNewCustomer && request.SelectedCustomerId.HasValue)
                 {
                     customer = await _unitOfWork.Customers.GetByIdAsync(request.SelectedCustomerId.Value, cancellationToken);
                 }
@@ -121,9 +121,11 @@ namespace Application.Features.Orders.Commands.CreateOrder
 
                     var orderItem = new OrderItem(
                         order.Id,
+                        item.PieceId,
                         item.Quantity,
                         item.SingleQuantityPrice,
                         itemColor,
+                        item.Description,
                         item.Comment
                     );
 

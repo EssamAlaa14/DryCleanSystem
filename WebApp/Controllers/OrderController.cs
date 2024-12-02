@@ -39,8 +39,7 @@ namespace WebApp.Controllers
                 .Select(ct => new CleaningTypeOptionViewModel
                 {
                     Id = ct.Id,
-                    Name = ct.Name,
-                    NameArabic = ct.NameArabic
+                    Name = ct.Name
                 })
                 .ToList();
 
@@ -55,7 +54,7 @@ namespace WebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateOrderViewModel model, CancellationToken cancellationToken)
+        public async Task<IActionResult> Create([FromForm] CreateOrderViewModel model, CancellationToken cancellationToken)
         {
             try
             {
@@ -76,8 +75,7 @@ namespace WebApp.Controllers
                         .Select(ct => new CleaningTypeOptionViewModel
                         {
                             Id = ct.Id,
-                            Name = ct.Name,
-                            NameArabic = ct.NameArabic
+                            Name = ct.Name
                         })
                         .ToList();
 
@@ -121,8 +119,7 @@ namespace WebApp.Controllers
                     .Select(ct => new CleaningTypeOptionViewModel
                     {
                         Id = ct.Id,
-                        Name = ct.Name,
-                        NameArabic = ct.NameArabic
+                        Name = ct.Name
                     })
                     .ToList();
 

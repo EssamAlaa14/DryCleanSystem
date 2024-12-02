@@ -7,6 +7,9 @@ namespace Domain.Entities.Orders
     {
         public Guid OrderId { get; private set; }
         public Order Order { get; private set; }
+        public Guid PieceId { get; private set; }
+        public Piece Piece { get; private set; }
+        public string? Description { get; private set; }
         public int Quantity { get; private set; }
         public decimal SingleQuantityPrice { get; private set; }
         public decimal TotalPrice { get; private set; }
@@ -17,16 +20,26 @@ namespace Domain.Entities.Orders
         // EF Core requires a private parameterless constructor for materialization
         private OrderItem() { }
 
-        public OrderItem(Guid orderId, int quantity, decimal singleQuantityPrice, Color color, string? comment)
+        public OrderItem(
+            Guid orderId,
+            Guid pieceId,
+            int quantity,
+            decimal singleQuantityPrice,
+            Color color,
+            string? description,
+            string? comment
+            )
         {
             if (quantity <= 0) throw new ArgumentException("Quantity must be greater than 0.");
             if (singleQuantityPrice <= 0) throw new ArgumentException("Price must be greater than 0.");
 
             OrderId = orderId;
+            PieceId = pieceId;
             Quantity = quantity;
             SingleQuantityPrice = singleQuantityPrice;
             TotalPrice = quantity * singleQuantityPrice;
             Color = color;
+            Description = description?.Trim();
             Comment = comment?.Trim();
         }
 
@@ -63,7 +76,12 @@ namespace Domain.Entities.Orders
 
         public void UpdateComment(string? comment)
         {
-            Comment = comment?.Trim(); // Normalize comment to avoid unnecessary spaces
+            Comment = comment?.Trim();
+        }
+
+        public void UpdateDescription(string? description)
+        {
+            Description = description?.Trim();
         }
     }
 }

@@ -14,7 +14,13 @@ namespace Domain.Entities
         // EF Core requires a private parameterless constructor for materialization
         private Customer() { }
 
-        public Customer(string name, Phone primaryPhone, Address address, Email? email = null, Phone? secondaryPhone = null)
+        public Customer(
+            string name,
+            Phone primaryPhone,
+            Address address,
+            Email? email = null,
+            Phone? secondaryPhone = null
+            )
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             PrimaryPhone = primaryPhone ?? throw new ArgumentNullException(nameof(primaryPhone));

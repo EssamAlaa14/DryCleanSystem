@@ -7,7 +7,9 @@ namespace Domain.ValueObjects
     {
         public string Number { get; }
 
-        public Phone(string number)
+        public Phone(
+            string number
+            )
         {
             if (string.IsNullOrWhiteSpace(number) || number.Length < 7)
             {

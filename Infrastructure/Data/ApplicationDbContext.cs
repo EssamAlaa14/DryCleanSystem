@@ -16,6 +16,7 @@ namespace Infrastructure.Data
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
         public DbSet<CleaningType> CleaningTypes { get; set; } = null!;
+        public DbSet<Piece> Pieces { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

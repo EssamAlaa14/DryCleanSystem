@@ -8,6 +8,7 @@
             {
                 return false;
             }
+
             return ReferenceEquals(left, right) || left!.Equals(right!);
         }
 
@@ -26,7 +27,6 @@
             }
 
             var other = (ValueObject)obj;
-
             return GetEqualityComponents().SequenceEqual(other.GetEqualityComponents());
         }
 

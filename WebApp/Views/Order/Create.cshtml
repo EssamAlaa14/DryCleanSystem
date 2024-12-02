@@ -1,207 +1,304 @@
 ﻿@using Domain.Enums
 @model WebApp.ViewModels.CreateOrderViewModel;
 
-<h1>Create Order</h1>
 
-<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label for="customerSearch">Search Customer</label>
-        <input type="text"
-               id="customerSearch"
-               class="form-control"
-               placeholder="Search by name or phone"
-               onkeyup="filterCustomers()" />
-    </div>
+<h1>إضافة طلب جديد</h1>
 
-    <div class="form-group">
-        <label for="SelectedCustomerId">Select Existing Customer</label>
-        <select asp-for="SelectedCustomerId" class="form-control" id="customerDropdown" onchange="toggleNewCustomerForm()">
-            <option value="">-- Select Customer --</option>
-            @foreach (var customer in Model.Customers)
-            {
-                <option value="@customer.Id">@customer.Name (@customer.PrimaryPhone)</option>
-            }
-        </select>
-    </div>
-
-    <!-- New Customer Form -->
-    <div id="newCustomerForm" style="display: none;">
-        <h4>New Customer Information</h4>
-        <div class="form-group">
-            <label asp-for="NewCustomer.Name"></label>
-            <input asp-for="NewCustomer.Name" class="form-control" />
-            <span asp-validation-for="NewCustomer.Name" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="NewCustomer.PrimaryPhone"></label>
-            <input asp-for="NewCustomer.PrimaryPhone" class="form-control" />
-            <span asp-validation-for="NewCustomer.PrimaryPhone" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="NewCustomer.SecondaryPhone"></label>
-            <input asp-for="NewCustomer.SecondaryPhone" class="form-control" />
-            <span asp-validation-for="NewCustomer.SecondaryPhone" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="NewCustomer.ApartmentNumber"></label>
-            <input asp-for="NewCustomer.ApartmentNumber" class="form-control" />
-            <span asp-validation-for="NewCustomer.ApartmentNumber" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="NewCustomer.FloorNumber"></label>
-            <input asp-for="NewCustomer.FloorNumber" class="form-control" />
-            <span asp-validation-for="NewCustomer.FloorNumber" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="NewCustomer.BuildingName"></label>
-            <input asp-for="NewCustomer.BuildingName" class="form-control" />
-            <span asp-validation-for="NewCustomer.BuildingName" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="NewCustomer.Street"></label>
-            <input asp-for="NewCustomer.Street" class="form-control" />
-            <span asp-validation-for="NewCustomer.Street" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="NewCustomer.District"></label>
-            <input asp-for="NewCustomer.District" class="form-control" />
-            <span asp-validation-for="NewCustomer.District" class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="NewCustomer.City"></label>
-            <input asp-for="NewCustomer.City" class="form-control" />
-            <span asp-validation-for="NewCustomer.City" class="text-danger"></span>
-        </div>
-    </div>
-
-    <hr />
-
-    <h4>Order Details</h4>
-
+<form action="javascript:void(0)">
+    @Html.AntiForgeryToken()
+    <h3>تفاصيل الطلب</h3>
     <!-- Order Type -->
     <div class="form-group">
-        <label>Order Type</label>
+        <label>نوع الطلب</label>
         <div>
             @foreach (var orderType in Enum.GetValues(typeof(OrderType)).Cast<OrderType>())
             {
                 <label>
                     <input type="radio" name="Order.OrderType" value="@((int)orderType)" onchange="toggleCleaningTypes()" />
-                    @orderType
+                    @orderType.GetDisplayName()
                 </label>
             }
         </div>
     </div>
-
-    <!-- Cleaning Types (only for Clothes) -->
-    <div id="cleaningTypeOptions" style="display: none;">
-        <h5>Cleaning Types</h5>
-        @foreach (var cleaningType in Model.CleaningTypeOptions)
-        {
-            <div class="form-check">
-                <input class="form-check-input"
-                       type="checkbox"
-                       name="Order.Items[0].CleaningTypeIds"
-                       value="@cleaningType.Id"
-                       id="cleaningType_@cleaningType.Id" />
-                <label class="form-check-label" for="cleaningType_@cleaningType.Id">
-                    @cleaningType.Name (@cleaningType.NameArabic)
-                </label>
-            </div>
-        }
-    </div>
-
     <div class="form-group">
-        <label asp-for="Order.DeliveryDate"></label>
+        <label asp-for="Order.DeliveryDate">تاريخ التسليم المتوقع</label>
         <input asp-for="Order.DeliveryDate" class="form-control" type="date" />
     </div>
 
     <div class="form-group">
-        <label asp-for="Order.Notes"></label>
-        <textarea asp-for="Order.Notes" class="form-control"></textarea>
+        <label asp-for="Order.Notes">ملاحظات</label>
+        <textarea asp-for="Order.Notes" placeholder="ملاحظات" rows="4" class="form-control"></textarea>
     </div>
 
-    <h4>Order Items</h4>
+    <div class="form-group">
+        <label>العميل</label>
+        <div>
+            <label>
+                <input type="radio" name="Order.CustomerType" value="1" onchange="toggleNewCustomerForm()" />
+                جديد
+            </label>
+            <label>
+                <input type="radio" name="Order.CustomerType" value="2" onchange="toggleNewCustomerForm()" />
+                حالي
+            </label>
+        </div>
+    </div>
+
+    <div class="existing-customer-div" id="existingCustomer" style="display: none;">
+        <div class="">بيانات العميل</div>
+        <div class="form-group">
+            <label for="customerSearch">بحث</label>
+            <input type="text"
+                   id="customerSearch"
+                   class="form-control"
+                   placeholder="بحث بالاسم أو برقم الهاتف"
+                   onkeyup="filterCustomers();" />
+        </div>
+
+        <div class="form-group">
+            <label for="SelectedCustomerId">إختيار العميل من قائمة العملاء السابقين</label>
+            <select asp-for="SelectedCustomerId" class="form-control" onchange="toggleNewCustomerForm()">
+                <option value="">-- إختر عميل --</option>
+                @foreach (var customer in Model.Customers)
+                {
+                    <option value="@customer.Id">@customer.Name (@customer.PrimaryPhone)</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- New Customer Form -->
+    <div id="newCustomerForm" style="display: none;">
+        <h4>بيانات عميل جديد</h4>
+        <div class="form-group">
+            <label asp-for="NewCustomer.Name"> الاسم </label>
+            <input asp-for="NewCustomer.Name" class="form-control" />
+            <span asp-validation-for="NewCustomer.Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.PrimaryPhone">رقم الهاتف</label>
+            <input asp-for="NewCustomer.PrimaryPhone" class="form-control" />
+            <span asp-validation-for="NewCustomer.PrimaryPhone" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.SecondaryPhone">رقم هاتف اخر</label>
+            <input asp-for="NewCustomer.SecondaryPhone" class="form-control" />
+            <span asp-validation-for="NewCustomer.SecondaryPhone" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.ApartmentNumber">رقم الشقة</label>
+            <input asp-for="NewCustomer.ApartmentNumber" class="form-control" />
+            <span asp-validation-for="NewCustomer.ApartmentNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.FloorNumber">الدور</label>
+            <input asp-for="NewCustomer.FloorNumber" class="form-control" />
+            <span asp-validation-for="NewCustomer.FloorNumber" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.BuildingName">اسم المبنى</label>
+            <input asp-for="NewCustomer.BuildingName" class="form-control" />
+            <span asp-validation-for="NewCustomer.BuildingName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.Street">الشارع</label>
+            <input asp-for="NewCustomer.Street" class="form-control" />
+            <span asp-validation-for="NewCustomer.Street" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="NewCustomer.District">المنطقة</label>
+            <input asp-for="NewCustomer.District" class="form-control" />
+            <span asp-validation-for="NewCustomer.District" class="text-danger"></span>
+        </div>
+    </div>
+
+    <hr />
+    <h4>عناصر الطلب</h4>
     <div id="orderItemsContainer">
-        @for (var i = 0; i < Model.Items.Count; i++)
-        {
-            <div class="order-item" id="orderItem_@i">
-                <h5>Order Item @i</h5>
-                <div class="form-group">
-                    <label asp-for="@Model.Items[i].Quantity"></label>
-                    <input asp-for="@Model.Items[i].Quantity" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="@Model.Items[i].SingleQuantityPrice"></label>
-                    <input asp-for="@Model.Items[i].SingleQuantityPrice" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="@Model.Items[i].Color"></label>
-                    <input asp-for="@Model.Items[i].Color" class="form-control" />
-                </div>
-                <button type="button" class="btn btn-danger" onclick="removeOrderItem(@i)">Remove</button>
-            </div>
-        }
+        <!-- Initially no rows, dynamically added -->
     </div>
-    <button type="button" class="btn btn-secondary" onclick="addOrderItem()">Add Item</button>
+    <button type="button" class="btn btn-secondary" onclick="addOrderItem()">إضافة عنصر للطلب</button>
 
 
-    <button type="submit" class="btn btn-primary">Create Order</button>
+
+    <div>
+        <button type="submit" class="btn btn-primary" onclick="submitForm()">إضافة الطلب</button>
+    </div>
 </form>
 
-<script>
-    function filterCustomers() {
-        const searchField = document.getElementById('customerSearch');
-        const searchValue = searchField.value.toLowerCase();
-        const dropdown = document.getElementById('customerDropdown');
-        const options = dropdown.options;
+@section Scripts {
+    <script>
+        var model = @Html.Raw(Json.Serialize(Model));
 
-        for (let i = 0; i < options.length; i++) {
-            const optionText = options[i].text.toLowerCase();
-            options[i].style.display = optionText.includes(searchValue) ? '' : 'none';
+        let orderItemIndex = 0; // Start with an empty list
+
+        function addOrderItem() {
+            const container = document.getElementById('orderItemsContainer');
+            const cleaningTypes = `
+                <div class="form-group">
+                    <h5>إختر المطلوب</h5>
+                    ${model.cleaningTypeOptions.map(cleaningType => `
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="Items[${orderItemIndex}].CleaningTypeOptions"
+                                   value="${cleaningType.id}"
+                                   id="Items_${orderItemIndex}_CleaningType_${cleaningType.id}" />
+                            <label class="form-check-label" for="Items_${orderItemIndex}_CleaningType_${cleaningType.id}">
+                                ${cleaningType.nameArabic}
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            console.log(cleaningTypes);
+
+            const itemHtml = `
+                <div class="order-item mb-3" id="orderItem_${orderItemIndex}">
+                    <h5>عنصر رقم ${orderItemIndex + 1}</h5>
+                    <div class="form-group">
+                        <label for="Items_${orderItemIndex}__Name">اسم القطعة</label>
+                        <input id="Items_${orderItemIndex}__Name" name="Items[${orderItemIndex}].Name" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Items_${orderItemIndex}__Quantity">الكمية</label>
+                        <input id="Items_${orderItemIndex}__Quantity" name="Items[${orderItemIndex}].Quantity" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Items_${orderItemIndex}__SingleQuantityPrice">سعر القطعة</label>
+                        <input id="Items_${orderItemIndex}__SingleQuantityPrice" name="Items[${orderItemIndex}].SingleQuantityPrice" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Items_${orderItemIndex}__Color">اللون</label>
+                        <input id="Items_${orderItemIndex}__Color" name="Items[${orderItemIndex}].Color" class="form-control" />
+                    </div>
+                    <div class="form-group">
+                        <label for="Items_${orderItemIndex}__Comment">تعليق</label>
+                        <input id="Items_${orderItemIndex}__Comment" name="Items[${orderItemIndex}].Comment" class="form-control" />
+                    </div>
+                    ${cleaningTypes}
+                    <button type="button" class="btn btn-danger mt-2" onclick="removeOrderItem(${orderItemIndex})">حذف</button>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', itemHtml);
+            orderItemIndex++;
         }
-    }
 
-    function toggleNewCustomerForm() {
-        const dropdown = document.getElementById('customerDropdown');
-        const newCustomerForm = document.getElementById('newCustomerForm');
-        newCustomerForm.style.display = dropdown.value === "" ? "block" : "none";
-    }
-
-    function toggleCleaningTypes() {
-        const orderType = document.querySelector('input[name="Order.OrderType"]:checked').value;
-        const cleaningTypeOptions = document.getElementById('cleaningTypeOptions');
-        cleaningTypeOptions.style.display = orderType === "1" ? "block" : "none"; // "1" corresponds to Clothes
-    }
-
-    let orderItemIndex = @Model.Items.Count;
-
-    function addOrderItem() {
-        const container = document.getElementById('orderItemsContainer');
-        const itemHtml = `
-            <div class="order-item" id="orderItem_${orderItemIndex}">
-                <h5>Order Item ${orderItemIndex}</h5>
-                <div class="form-group">
-                    <label for="Items_${orderItemIndex}__Quantity">Quantity</label>
-                    <input id="Items_${orderItemIndex}__Quantity" name="Items[${orderItemIndex}].Quantity" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label for="Items_${orderItemIndex}__SingleQuantityPrice">Single Quantity Price</label>
-                    <input id="Items_${orderItemIndex}__SingleQuantityPrice" name="Items[${orderItemIndex}].SingleQuantityPrice" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label for="Items_${orderItemIndex}__Color">Color</label>
-                    <input id="Items_${orderItemIndex}__Color" name="Items[${orderItemIndex}].Color" class="form-control" />
-                </div>
-                <button type="button" class="btn btn-danger" onclick="removeOrderItem(${orderItemIndex})">Remove</button>
-            </div>`;
-        container.insertAdjacentHTML('beforeend', itemHtml);
-        orderItemIndex++;
-    }
-
-    function removeOrderItem(index) {
-        const item = document.getElementById(`orderItem_${index}`);
-        if (item) {
-            item.remove();
+        function removeOrderItem(index) {
+            const item = document.getElementById(`orderItem_${index}`);
+            if (item) {
+                item.remove();
+            }
         }
-    }
-</script>
+                
+        function submitForm() {
+            const formData = new FormData();
+
+            // Check if the customer is new or existing
+            const customerType = document.querySelector('input[name="Order.CustomerType"]:checked').value;
+
+            if (customerType === "1") {
+                // New Customer
+                const newCustomerForm = document.getElementById('newCustomerForm');
+                const newCustomerInputs = newCustomerForm.querySelectorAll('input, textarea');
+                newCustomerInputs.forEach(input => {
+                    if (input.name) {
+                        formData.append(`NewCustomer.${input.name}`, input.value);
+                    }
+                });
+            } else if (customerType === "2") {
+                // Existing Customer
+                const selectedCustomerId = document.getElementById('SelectedCustomerId').value;
+                formData.append('SelectedCustomerId', selectedCustomerId);
+            }
+
+            // Collect order details
+            formData.append('Order.OrderType', document.querySelector('input[name="Order.OrderType"]:checked').value);
+            formData.append('Order.DeliveryDate', document.querySelector('[name="Order.DeliveryDate"]').value);
+            formData.append('Order.Notes', document.querySelector('[name="Order.Notes"]').value);
+
+            // Collect all order item data dynamically
+            for (let i = 0; i < orderItemIndex; i++) {
+                const itemContainer = document.getElementById(`orderItem_${i}`);
+                if (!itemContainer) continue; // Skip if item was removed
+
+                const name = itemContainer.querySelector(`#Items_${i}__Name`).value;
+                const quantity = itemContainer.querySelector(`#Items_${i}__Quantity`).value;
+                const singleQuantityPrice = itemContainer.querySelector(`#Items_${i}__SingleQuantityPrice`).value;
+                const color = itemContainer.querySelector(`#Items_${i}__Color`).value;
+                const comment = itemContainer.querySelector(`#Items_${i}__Comment`).value;
+
+                formData.append(`Order.Items[${i}].Name`, name);
+                formData.append(`Order.Items[${i}].Quantity`, quantity);
+                formData.append(`Order.Items[${i}].SingleQuantityPrice`, singleQuantityPrice);
+                formData.append(`Order.Items[${i}].Color`, color);
+                formData.append(`Order.Items[${i}].Comment`, comment);
+
+                const selectedCleaningTypes = itemContainer.querySelectorAll(
+                    `input[name="Items[${i}].CleaningTypeOptions"]:checked`
+                );
+                selectedCleaningTypes.forEach((checkbox, index) => {
+                    formData.append(`Order.Items[${i}].CleaningTypeIds[${index}]`, checkbox.value);
+                });
+            }
+
+            // Submit the form using fetch
+                fetch('@Url.Action("Create", "Order")', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Order submitted successfully!');
+                        window.location.href = '/Order/Index'; // Redirect to the index page
+                    } else {
+                        alert('Failed to submit the order. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting form:', error);
+                    alert('An error occurred while submitting the order.');
+                });
+        }
+
+
+
+                function filterCustomers() {
+            const searchField = document.getElementById('customerSearch');
+            const searchValue = searchField.value.toLowerCase();
+            const dropdown = document.getElementById('SelectedCustomerId');
+            const options = dropdown.options;
+            const option = Array.from(options).find(x => x.text.toLowerCase().includes(searchValue));
+            if (option) {
+                dropdown.value = option.value;
+            } else {
+                dropdown.value = "";
+            }
+
+        }
+
+        function toggleNewCustomerForm() {
+            const customerType = document.querySelector('input[name="Order.CustomerType"]:checked').value;
+            const newCustomerForm = document.getElementById('newCustomerForm');
+            const existingCustomer = document.getElementById('existingCustomer');
+
+            if (customerType == 1) {
+                newCustomerForm.style.display = "block";
+                existingCustomer.style.display = "none";
+            } else {
+                newCustomerForm.style.display = "none";
+                existingCustomer.style.display = "block";
+            }
+        }
+
+        function toggleCleaningTypes() {
+            //const orderType = document.querySelector('input[name="Order.OrderType"]:checked').value;
+            //const cleaningTypeOptions = document.getElementById('cleaningTypeOptions');
+            //cleaningTypeOptions.style.display = orderType === "1" ? "block" : "none"; // "1" corresponds to Clothes
+        }
+    </script>
+}

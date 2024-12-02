@@ -18,7 +18,12 @@ namespace Domain.Entities.Orders
         private Order() { }
 
         // Constructor
-        public Order(Guid customerId, OrderType orderType, DateTime? deliveryDate = null, string? notes = null)
+        public Order(
+            Guid customerId,
+            OrderType orderType,
+            DateTime? deliveryDate = null,
+            string? notes = null
+            )
         {
             if (customerId == Guid.Empty) throw new ArgumentException("CustomerId cannot be empty.");
             if (deliveryDate.HasValue && deliveryDate.Value < DateTime.UtcNow)

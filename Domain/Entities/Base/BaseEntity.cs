@@ -4,10 +4,10 @@ namespace Domain.Entities.Base
 {
     public abstract class BaseEntity
     {
-        public Guid Id { get; private set; } = Guid.NewGuid(); // Immutable ID
-        public RecordStatus RecordStatus { get; private set; } = RecordStatus.Enabled; // Default
-        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow; // Set at creation
-        public DateTime UpdatedAt { get; protected set; } = DateTime.UtcNow; // Updated at modification
+        public Guid Id { get; private set; } = Guid.NewGuid();
+        public RecordStatus RecordStatus { get; private set; } = RecordStatus.Enabled;
+        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; protected set; } = DateTime.UtcNow;
 
         // Methods to transition state
         public void Enable()

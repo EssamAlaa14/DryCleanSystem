@@ -6,7 +6,9 @@ namespace Domain.ValueObjects
     {
         public string ColorName { get; }
 
-        public Color(string colorName)
+        public Color(
+            string colorName
+            )
         {
             if (string.IsNullOrWhiteSpace(colorName)) throw new ArgumentNullException(nameof(colorName));
             ColorName = colorName.Trim();

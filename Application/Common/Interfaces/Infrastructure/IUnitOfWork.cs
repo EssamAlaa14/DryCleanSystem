@@ -11,6 +11,7 @@ namespace Application.Common.Interfaces.Infrastructure
         IRepository<Customer> Customers { get; }
         IRepository<Order> Orders { get; }
         IRepository<OrderItem> OrderItems { get; }
+        IRepository<Piece> Pieces { get; }
 
         #endregion
 

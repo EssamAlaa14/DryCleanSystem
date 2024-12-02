@@ -25,6 +25,9 @@ namespace Infrastructure.Data.Repositories
         private IRepository<OrderItem>? _orderItems;
         public IRepository<OrderItem> OrderItems => _orderItems ??= new Repository<OrderItem>(_context);
 
+        private IRepository<Piece>? _pieces;
+        public IRepository<Piece> Pieces => _pieces ??= new Repository<Piece>(_context);
+
         #endregion
 
         public async Task<int> CommitAsync(CancellationToken cancellationToken) => await _context.SaveChangesAsync(cancellationToken);
