@@ -1,19 +1,18 @@
-﻿using Application.Common.Interfaces.Infrastructure;
-using Application.Features.Orders.Commands.CreateOrder;
+﻿using Application.Features.CleaningTypes.GetAllCleaningTypes;
+using Application.Features.Customers.Queries.GetAllCustomers;
+using Application.Features.Pieces.Queries.GetAllPieces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Controllers.Base;
 using WebApp.ViewModels;
 
 namespace WebApp.Controllers
 {
     public class OrderController(
         IMediator mediator,
-        IUnitOfWork unitOfWork,
         ILogger<OrderController> logger
-        ) : Controller
+        ) : BaseController(mediator)
     {
-        private readonly IMediator _mediator = mediator;
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly ILogger<OrderController> _logger = logger;
 
         public IActionResult Index()
@@ -24,31 +23,11 @@ namespace WebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(CancellationToken cancellationToken)
         {
-            var customersList = await _unitOfWork.Customers.GetAllAsync(cancellationToken);
-            var customersVm = customersList
-                .Select(c => new CustomerDropdownViewModel
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    PrimaryPhone = c.PrimaryPhone.ToString()
-                })
-                .ToList();
-
-            var cleaningTypes = await _unitOfWork.CleaningTypes.GetAllAsync(cancellationToken);
-            var cleaningTypesVm = cleaningTypes
-                .Select(ct => new CleaningTypeOptionViewModel
-                {
-                    Id = ct.Id,
-                    Name = ct.Name
-                })
-                .ToList();
-
+            var orderListModel = await GetOrderListItemsViewModel(cancellationToken);
             var viewModel = new CreateOrderViewModel
             {
-                Customers = customersVm,
-                CleaningTypeOptions = cleaningTypesVm
+                OrderListItemsModel = orderListModel,
             };
-
             return View(viewModel);
         }
 
@@ -60,73 +39,37 @@ namespace WebApp.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    var customersList = await _unitOfWork.Customers.GetAllAsync(cancellationToken);
-                    var customersVm = customersList
-                        .Select(c => new CustomerDropdownViewModel
-                        {
-                            Id = c.Id,
-                            Name = c.Name,
-                            PrimaryPhone = c.PrimaryPhone.ToString()
-                        })
-                        .ToList();
-
-                    var cleaningTypes = await _unitOfWork.CleaningTypes.GetAllAsync(cancellationToken);
-                    var cleaningTypesVm = cleaningTypes
-                        .Select(ct => new CleaningTypeOptionViewModel
-                        {
-                            Id = ct.Id,
-                            Name = ct.Name
-                        })
-                        .ToList();
-
-                    model.Customers = customersVm;
-                    model.CleaningTypeOptions = cleaningTypesVm;
+                    var orderListModel = await GetOrderListItemsViewModel(cancellationToken);
+                    model.OrderListItemsModel = orderListModel;
                     return View(model);
                 }
 
-                var command = new CreateOrderCommand
-                {
-                    IsNewCustomer = model.IsNewCustomer,
-                    SelectedCustomerId = model.SelectedCustomerId,
-                    NewCustomer = model.NewCustomer,
-                    Order = model.Order
-                };
-
-                await _mediator.Send(command, cancellationToken);
-
+                await _mediator.Send(model.Command, cancellationToken);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                // Log the exception (use your preferred logging framework)
                 _logger.LogError(ex, "Error occurred while creating an order.");
-
-                // Add a general error message to ModelState
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again later.");
 
-                var customersList = await _unitOfWork.Customers.GetAllAsync(cancellationToken);
-                var customersVm = customersList
-                    .Select(c => new CustomerDropdownViewModel
-                    {
-                        Id = c.Id,
-                        Name = c.Name,
-                        PrimaryPhone = c.PrimaryPhone.ToString()
-                    })
-                    .ToList();
-
-                var cleaningTypes = await _unitOfWork.CleaningTypes.GetAllAsync(cancellationToken);
-                var cleaningTypesVm = cleaningTypes
-                    .Select(ct => new CleaningTypeOptionViewModel
-                    {
-                        Id = ct.Id,
-                        Name = ct.Name
-                    })
-                    .ToList();
-
-                model.Customers = customersVm;
-                model.CleaningTypeOptions = cleaningTypesVm;
+                var orderListModel = await GetOrderListItemsViewModel(cancellationToken);
+                model.OrderListItemsModel = orderListModel;
                 return View(model);
             }
+        }
+
+        private async Task<BaseOrderListItemsViewModel> GetOrderListItemsViewModel(CancellationToken cancellationToken)
+        {
+            var customersList = await _mediator.Send(new GetAllCustomersQuery(), cancellationToken);
+            var piecesList = await _mediator.Send(new GetAllPiecesQuery(), cancellationToken);
+            var cleaningTypesList = await _mediator.Send(new GetAllCleaningTypesQuery(), cancellationToken);
+
+            return new BaseOrderListItemsViewModel
+            {
+                Customers = customersList,
+                Pieces = piecesList,
+                CleaningTypeOptions = cleaningTypesList
+            };
         }
     }
 }

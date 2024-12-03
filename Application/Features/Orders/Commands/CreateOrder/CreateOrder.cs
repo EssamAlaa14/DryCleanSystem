@@ -11,9 +11,8 @@ namespace Application.Features.Orders.Commands.CreateOrder
 {
     public record CreateOrderCommand : IRequest<Unit>
     {
-        public bool IsNewCustomer { get; set; }
-        public CreateCustomerDto? NewCustomer { get; set; }
         public Guid? SelectedCustomerId { get; set; }
+        public CreateCustomerDto? NewCustomer { get; set; }
         public CreateOrderDto Order { get; set; }
     }
 
@@ -84,7 +83,7 @@ namespace Application.Features.Orders.Commands.CreateOrder
             {
                 // Handle Customer
                 Customer customer;
-                if (!request.IsNewCustomer && request.SelectedCustomerId.HasValue)
+                if (request.SelectedCustomerId.HasValue)
                 {
                     customer = await _unitOfWork.Customers.GetByIdAsync(request.SelectedCustomerId.Value, cancellationToken);
                 }

@@ -2,17 +2,17 @@ using Application.Features.Customers.Commands.CreateCustomer;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using WebApp.Controllers.Base;
 using WebApp.Models;
 
 namespace WebApp.Controllers
 {
     public class HomeController(
-        ILogger<HomeController> logger,
-        IMediator mediator
-        ) : Controller
+        IMediator mediator,
+        ILogger<HomeController> logger
+        ) : BaseController(mediator)
     {
         private readonly ILogger<HomeController> _logger = logger;
-        private readonly IMediator _mediator = mediator;
 
         public IActionResult Index()
         {

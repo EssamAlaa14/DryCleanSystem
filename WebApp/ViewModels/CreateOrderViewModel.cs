@@ -1,15 +1,18 @@
-﻿using Application.Common.DTOs.CreateDtos;
+﻿using Application.Common.DTOs.InfoDtos;
+using Application.Features.Orders.Commands.CreateOrder;
 
 namespace WebApp.ViewModels
 {
+    public class BaseOrderListItemsViewModel
+    {
+        public List<CustomerDto> Customers { get; set; } = [];
+        public List<PieceDto> Pieces { get; set; } = [];
+        public List<CleaningTypeDto> CleaningTypeOptions { get; set; } = [];
+    }
+
     public class CreateOrderViewModel
     {
-        public Guid? SelectedCustomerId { get; set; }
-        public List<CustomerDropdownViewModel> Customers { get; set; } = [];
-        public CreateOrderDto Order { get; set; } = new CreateOrderDto();
-        public CreateCustomerDto? NewCustomer { get; set; }
-        public bool IsNewCustomer { get; set; } = false;
-        public List<CreateOrderItemDto> Items { get; set; } = [];
-        public List<CleaningTypeOptionViewModel> CleaningTypeOptions { get; set; } = [];
+        public BaseOrderListItemsViewModel? OrderListItemsModel { get; set; } = new BaseOrderListItemsViewModel();
+        public CreateOrderCommand Command { get; set; } = new CreateOrderCommand();
     }
 }

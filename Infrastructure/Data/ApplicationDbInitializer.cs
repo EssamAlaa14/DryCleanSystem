@@ -25,6 +25,7 @@ namespace Infrastructure.Data
                 logger.LogInformation("Seeding...");
                 await SeedCleaningTypesAsync(context, logger);
                 await SeedPiecesAsync(context, logger);
+                await SeedDistrictsAsync(context, logger);
             }
             catch (Exception ex)
             {
@@ -92,6 +93,38 @@ namespace Infrastructure.Data
             else
             {
                 logger.LogInformation("Pieces already exist. Skipping seed.");
+            }
+        }
+
+        private static async Task SeedDistrictsAsync(ApplicationDbContext context, ILogger logger)
+        {
+            if (!context.Districts.Any())
+            {
+                var districts = new List<District>
+                {
+                    new("السيوف شماعة", 0),
+                    new("عذبة محسن", 0),
+                    new("زقزوق", 0),
+                    new("العوايد", 0),
+                    new("ابوسليمان", 0),
+                    new("فيكتوريا", 0),
+                    new("المراغي", 0),
+                    new("المهاجرين", 0),
+                    new("اسكوت", 0),
+                    new("كارفور السيوف", 0),
+                    new("مصطفى كامل", 0),
+                    new("سموحة", 0),
+                    new("محرم بك", 0)
+                };
+
+                await context.Districts.AddRangeAsync(districts);
+                await context.SaveChangesAsync();
+
+                logger.LogInformation("Districts seeded successfully.");
+            }
+            else
+            {
+                logger.LogInformation("Districts already exist. Skipping seed.");
             }
         }
     }

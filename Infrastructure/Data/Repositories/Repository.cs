@@ -28,9 +28,18 @@ namespace Infrastructure.Data.Repositories
             return entity;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<T>> GetAllAsync(
+            CancellationToken cancellationToken = default,
+            params Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.ToListAsync(cancellationToken);
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.ToListAsync(cancellationToken);
         }
 
         public async Task<IEnumerable<T>> GetByPredicateAsync(

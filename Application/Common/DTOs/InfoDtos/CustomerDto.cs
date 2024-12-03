@@ -1,4 +1,7 @@
-﻿namespace Application.Common.DTOs.InfoDtos
+﻿using AutoMapper;
+using Domain.Entities;
+
+namespace Application.Common.DTOs.InfoDtos
 {
     public class CustomerDto(
         Guid id,
@@ -19,5 +22,13 @@
         public string Address { get; set; } = address;
         public DateTime CreatedAt { get; set; } = createdAt;
         public DateTime UpdatedAt { get; set; } = updatedAt;
+
+        private class Mapping : Profile
+        {
+            public Mapping()
+            {
+                CreateMap<Customer, CustomerDto>();
+            }
+        }
     }
 }

@@ -28,6 +28,9 @@ namespace Infrastructure.Data.Repositories
         private IRepository<Piece>? _pieces;
         public IRepository<Piece> Pieces => _pieces ??= new Repository<Piece>(_context);
 
+        private IRepository<District>? _districts;
+        public IRepository<District> Districts => _districts ??= new Repository<District>(_context);
+
         #endregion
 
         public async Task<int> CommitAsync(CancellationToken cancellationToken) => await _context.SaveChangesAsync(cancellationToken);

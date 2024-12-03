@@ -26,4 +26,6 @@ body {
     padding-inline: 24px;
 }
 
-
+.separator {
+    margin: 16px;
+}

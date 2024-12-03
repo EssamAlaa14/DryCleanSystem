@@ -10,14 +10,15 @@ namespace Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            // Register MediatR
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-            // Register FluentValidation
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-            // Register Validation Behavior
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            });
 
             return services;
         }
