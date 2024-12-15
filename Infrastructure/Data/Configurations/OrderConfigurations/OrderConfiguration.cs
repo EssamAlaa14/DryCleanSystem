@@ -25,6 +25,9 @@ namespace Infrastructure.Data.Configurations.OrderConfigurations
             builder.Property(o => o.DeliveryDate)
                 .IsRequired(false);
 
+            builder.Property(o => o.DeliveryFees)
+                .IsRequired(false);
+
             builder.Property(o => o.InvoiceNumber)
                 .HasDefaultValueSql("NEXT VALUE FOR InvoiceNumberSequence")
                 .IsRequired();

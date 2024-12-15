@@ -2,17 +2,11 @@
 
 namespace Domain.ValueObjects
 {
-    public class Color : ValueObject
+    public class Color(
+        string colorName
+            ) : ValueObject
     {
-        public string ColorName { get; }
-
-        public Color(
-            string colorName
-            )
-        {
-            if (string.IsNullOrWhiteSpace(colorName)) throw new ArgumentNullException(nameof(colorName));
-            ColorName = colorName.Trim();
-        }
+        public string ColorName { get; } = colorName.Trim();
 
         // Predefined common colors
         public static Color Red => new("Red");
@@ -20,6 +14,7 @@ namespace Domain.ValueObjects
         public static Color Green => new("Green");
         public static Color Black => new("Black");
         public static Color White => new("White");
+        public static Color NoColor => new("");
 
         // Allow custom colors
         public static Color Custom(string colorName) => new(colorName);

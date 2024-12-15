@@ -4,39 +4,9 @@
 <section class="section">
     <h2>إضافة طلب جديد</h2>
 
-    <form action="javascript:void(0)">
+    <form action="javascript:void(0)" id="createOrderForm">
         @Html.AntiForgeryToken()
-        <div class="row">
-            <div class="col-12">
-                <h4 class="fw-bold text-decoration-underline">تفاصيل الطلب</h4>
-            </div>
-            <div class="col-3">
-                <div class="form-group">
-                    <label class="h6 mb-2 text-primary">نوع الطلب</label>
-                    <div class="d-flex flex-column align-items-start justify-content-center">
-                        @foreach (var orderType in Enum.GetValues(typeof(OrderType)).Cast<OrderType>())
-                        {
-                            <label class="h6">
-                                <input type="radio" name="Command.Order.OrderType" value="@((int)orderType)" />
-                                @orderType.GetDisplayName()
-                            </label>
-                        }
-                    </div>
-                </div>
-            </div>
-            <div class="col-4">
-                <div class="form-group w-50">
-                    <label class="h6 mb-2 text-primary" asp-for="Command.Order.DeliveryDate">تاريخ التسليم المتوقع</label>
-                    <input asp-for="Command.Order.DeliveryDate" class="form-control" type="date" />
-                </div>
-                <div class="separator"></div>
-                <div class="form-group">
-                    <label class="h6 mb-2 text-primary" asp-for="Command.Order.Notes">إضافة ملاحظات</label>
-                    <textarea asp-for="Command.Order.Notes" placeholder="ملاحظات" rows="4" class="form-control"></textarea>
-                </div>
-            </div>
-        </div>
-        <hr />
+        <input type="hidden" asp-for="Command.Order.OrderType" value="@((int)Model.Command.Order.OrderType)" />
         <div class="row">
             <div class="col-3">
                 <div class="form-group">
@@ -71,7 +41,7 @@
                     <div class="col-7">
                         <div class="form-group">
                             <label class="h6 mb-2 text-primary" for="Command_SelectedCustomerId">إختيار العميل من قائمة العملاء السابقين</label>
-                            <select asp-for="Command.SelectedCustomerId" class="form-control" onchange="toggleNewCustomerForm()">
+                            <select asp-for="Command.SelectedCustomerId" class="form-select" onchange="toggleNewCustomerForm()">
                                 <option value="">-- إختر عميل --</option>
                                 @foreach (var customer in Model.OrderListItemsModel!.Customers)
                                 {
@@ -86,14 +56,14 @@
                     <div class="col-4">
                         <div class="form-group">
                             <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.Name"> الاسم </label>
-                            <input asp-for="Command.NewCustomer!.Name" class="form-control" placeholder="اسم العميل" />
+                            <input data-required="true" asp-for="Command.NewCustomer!.Name" class="form-control" placeholder="اسم العميل" />
                             <span asp-validation-for="Command.NewCustomer!.Name" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
                             <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.PrimaryPhone">رقم الهاتف</label>
-                            <input asp-for="Command.NewCustomer!.PrimaryPhone" class="form-control" placeholder="رقم الهاتف" />
+                            <input data-required="true" asp-for="Command.NewCustomer!.PrimaryPhone" class="form-control" placeholder="رقم الهاتف" />
                             <span asp-validation-for="Command.NewCustomer!.PrimaryPhone" class="text-danger"></span>
                         </div>
                     </div>
@@ -105,29 +75,34 @@
                     </div>
                     <div class="col-2">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.District">المنطقة</label>
-                            <input asp-for="Command.NewCustomer!.District" class="form-control" placeholder="المنطقة" />
-                            <span asp-validation-for="Command.NewCustomer!.District" class="text-danger"></span>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.DistrictId">المنطقة</label>
+                            <select data-required="true" asp-for="Command.Address!.DistrictId" class="form-select">
+                                <option value="">-- إختر المنطقة --</option>
+                                @foreach (var district in Model.OrderListItemsModel!.Districts)
+                                {
+                                    <option value="@district.Id">@district.Name</option>
+                                }
+                            </select>
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.Street">الشارع</label>
-                            <input asp-for="Command.NewCustomer!.Street" class="form-control" placeholder="الشارع" />
-                            <span asp-validation-for="Command.NewCustomer!.Street" class="text-danger"></span>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.Street">الشارع</label>
+                            <input data-required="true" asp-for="Command.Address!.Street" class="form-control" placeholder="الشارع" />
+                            <span asp-validation-for="Command.Address!.Street" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.BuildingName">اسم أو رقم المبنى/البرج</label>
-                            <input asp-for="Command.NewCustomer!.BuildingName" class="form-control" placeholder="اسم أو رقم المبنى/البرج" />
-                            <span asp-validation-for="Command.NewCustomer!.BuildingName" class="text-danger"></span>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.BuildingName">اسم أو رقم المبنى/البرج</label>
+                            <input data-required="true" asp-for="Command.Address!.BuildingName" class="form-control" placeholder="اسم أو رقم المبنى/البرج" />
+                            <span asp-validation-for="Command.Address!.BuildingName" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.FloorNumber">الدور</label>
-                            <select asp-for="Command.NewCustomer!.FloorNumber" class="form-control">
+                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.FloorNumber">الدور</label>
+                            <select data-required="true" asp-for="Command.Address!.FloorNumber" class="form-select">
                                 <option value="">-- إختر الدور --</option>
                                 @for (var i = 0; i < 18; i++)
                                 {
@@ -138,9 +113,9 @@
                     </div>
                     <div class="col-3">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.ApartmentNumber">رقم الشقة/اسم الشقة</label>
-                            <input asp-for="Command.NewCustomer!.ApartmentNumber" class="form-control" placeholder="رقم الشقة/اسم الشقة" />
-                            <span asp-validation-for="Command.NewCustomer!.ApartmentNumber" class="text-danger"></span>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.ApartmentNumber">رقم الشقة/اسم الشقة</label>
+                            <input data-required="true" asp-for="Command.Address!.ApartmentNumber" class="form-control" placeholder="رقم الشقة/اسم الشقة" />
+                            <span asp-validation-for="Command.Address!.ApartmentNumber" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -159,6 +134,34 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-12">
+                <h4 class="fw-bold text-decoration-underline">تفاصيل الطلب</h4>
+            </div>
+            <div class="col-3">
+                <div id="orderSummaryContainer">
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-group">
+                    <label class="h6 mb-2 text-primary" asp-for="Command.Order.DeliveryFees">رسوم التوصيل</label>
+                    <input type="number" min="0" value="0" asp-for="Command.Order.DeliveryFees" class="form-control" />
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-group">
+                    <label class="h6 mb-2 text-primary" asp-for="Command.Order.DeliveryDate">تاريخ التسليم المتوقع</label>
+                    <input asp-for="Command.Order.DeliveryDate" class="form-control" type="date" />
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-group">
+                    <label class="h6 mb-2 text-primary" asp-for="Command.Order.Notes">إضافة ملاحظات</label>
+                    <textarea asp-for="Command.Order.Notes" placeholder="ملاحظات" rows="4" class="form-control"></textarea>
+                </div>
+            </div>
+        </div>
+        <hr />
         <div class="row justify-content-center mt-3">
             <div class="col-4">
                 <button type="submit" onclick="submitForm()" class="btn btn-primary w-100">إضافة الطلب</button>
@@ -168,71 +171,92 @@
 </section>
 
 <template id="orderItemTemplate" class="d-none">
-    <div class="row" id="orderItem_{{orderItemIndex}}">
-        <div class="col-1">
-            <span class="h6 text-primary">#{{orderItemNumber}}</span>
-        </div>
-        <div class="col-2">
-            <div class="form-group">
-                <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__PieceId">القطعة</label>
-                <select id="Items_{{orderItemIndex}}__PieceId" class="form-control">
-                    <option value="">-- إختر القطعة --</option>
-                    @foreach (var piece in Model.OrderListItemsModel.Pieces)
-                    {
-                        <option value="@piece.Id">@piece.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-        <div class="col-3">
-            <div class="form-group">
-                <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__Description">الوصف</label>
-                <input id="Items_{{orderItemIndex}}__Description" name="Items[{{orderItemIndex}}].Description" class="form-control" />
-            </div>
-        </div>
-        <div class="col-2">
-            <div class="form-group">
-                <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__Quantity">الكمية</label>
-                <input id="Items_{{orderItemIndex}}__Quantity" name="Items[{{orderItemIndex}}].Quantity" class="form-control" />
-            </div>
-        </div>
-        <div class="col-2">
-            <div class="form-group">
-                <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__SingleQuantityPrice">سعر القطعة</label>
-                <input id="Items_{{orderItemIndex}}__SingleQuantityPrice" name="Items[{{orderItemIndex}}].SingleQuantityPrice" class="form-control" />
-            </div>
-        </div>
-        <div class="col-2">
-            <div class="form-group">
-                <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__Color">اللون</label>
-                <input id="Items_{{orderItemIndex}}__Color" name="Items[{{orderItemIndex}}].Color" class="form-control" />
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="form-group">
-                <label class="h6 mb-2 text-primary">المطلوب؟</label>
-                <div class="d-flex align-items-start justify-content-center">
-                    @foreach (var cleaningOption in Model.OrderListItemsModel.CleaningTypeOptions)
-                    {
-                        <label class="h6 px-3">
-                            <input type="checkbox" name="Items[{{orderItemIndex}}].CleaningTypeOption" value="@(cleaningOption.Id)" />
-                            @cleaningOption.Name
+    <div class="row order-item" id="orderItem_{{orderItemIndex}}">
+        <div class="col-11">
+            <div class="row">
+                <div class="col-2">
+                    <div class="form-group">
+                        <label class="h6 mb-2 text-danger" for="Items_{{orderItemIndex}}__PieceId">القطعة</label>
+                        <select id="Items_{{orderItemIndex}}__PieceId" class="form-select" required>
+                            <option value="">-- إختر القطعة --</option>
+                            @foreach (var piece in Model.OrderListItemsModel.Pieces)
+                            {
+                                <option value="@piece.Id">@piece.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <div class="form-group">
+                        <label class="h6 mb-2 text-danger" for="Items_{{orderItemIndex}}__Quantity">الكمية</label>
+                        <select id="Items_{{orderItemIndex}}__Quantity" name="Items[{{orderItemIndex}}].Quantity" class="form-select">
+                            <option value="1" selected>1</option>
+                            @for (var i = 2; i <= (Model.Command.Order.OrderType == OrderType.Clothes ? 100 : 10); i++)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group">
+                        <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__Description">
+                            @(Model.Command.Order.OrderType == OrderType.Rugs ? "الوصف/المقاس" : "الوصف")
                         </label>
-                    }
+                        <input id="Items_{{orderItemIndex}}__Description" name="Items[{{orderItemIndex}}].Description" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="d-flex justify-content-between align-items-start">
+                        @if (Model.Command.Order.OrderType == OrderType.Clothes)
+                        {
+                            <div class="form-group">
+                                <label class="h6 mb-2 text-primary">المطلوب؟</label>
+                                <div class="d-flex flex-column align-items-start justify-content-center">
+                                    @foreach (var cleaningOption in Model.OrderListItemsModel.CleaningTypeOptions)
+                                    {
+                                        <label class="h6 px-3">
+                                            <input type="checkbox" name="Items[{{orderItemIndex}}].CleaningTypeOption" value="@(cleaningOption.Id)" />
+                                            @cleaningOption.Name
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        <div class="form-group" style="max-width:4.5rem;">
+                            <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__SingleQuantityPrice">السعر</label>
+                            <input type="number" min="0" value="0" id="Items_{{orderItemIndex}}__SingleQuantityPrice" name="Items[{{orderItemIndex}}].SingleQuantityPrice" class="form-control" />
+                            <input type="hidden" id="Items_{{orderItemIndex}}__TotalItemPrice" value="0" />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-4">
+        <div class="col-1">
             <div class="form-group">
-                <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__Comment">إضافة تعليق</label>
-                <input id="Items_{{orderItemIndex}}__Comment" name="Items[{{orderItemIndex}}].Comment" class="form-control" />
+                <button type="button" class="btn btn-danger mt-4 remove-item-btn d-none" data-index="{{orderItemIndex}}">حذف</button>
             </div>
         </div>
-        <div class="col-3">
-            <div class="form-group">
-                <button type="button" class="btn btn-danger mt-4 remove-item-btn" data-index="{{orderItemIndex}}">حذف</button>
+        <div class="col-12"><hr /></div>
+    </div>
+</template>
+<template id="orderSummaryTemplate" class="d-none">
+    <div class="row">
+        <div class="col-12">
+            <div class="">
+                <span class="h6 mb-2 text-primary">عدد العناصر:</span>
+                <span class="fw-bold">
+                    <span id="totalQuantity">{{totalQuantity}}</span>
+                </span>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="">
+                <span class="h6 mb-2 text-primary">السعر الإجمالي:</span>
+                <span class="fw-bold">
+                    <span id="totalPrice">{{totalPrice}}</span> جنيه
+                </span>
             </div>
         </div>
     </div>
-    <hr />
 </template>

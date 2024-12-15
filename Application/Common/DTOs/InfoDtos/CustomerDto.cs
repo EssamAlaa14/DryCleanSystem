@@ -9,9 +9,7 @@ namespace Application.Common.DTOs.InfoDtos
         string primaryPhone,
         string? secondaryPhone,
         string? email,
-        string address,
-        DateTime createdAt,
-        DateTime updatedAt
+        DateTime createdAt
         )
     {
         public Guid Id { get; set; } = id;
@@ -19,9 +17,7 @@ namespace Application.Common.DTOs.InfoDtos
         public string PrimaryPhone { get; set; } = primaryPhone;
         public string? SecondaryPhone { get; set; } = secondaryPhone;
         public string? Email { get; set; } = email;
-        public string Address { get; set; } = address;
         public DateTime CreatedAt { get; set; } = createdAt;
-        public DateTime UpdatedAt { get; set; } = updatedAt;
 
         private class Mapping : Profile
         {

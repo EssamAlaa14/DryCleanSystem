@@ -1,6 +1,7 @@
 ﻿using Application.Common.DTOs.CreateDtos;
 using Application.Common.Interfaces.Infrastructure;
 using Application.Validators;
+using AutoMapper;
 using Domain.Entities;
 using Domain.Entities.Orders;
 using Domain.ValueObjects;
@@ -12,13 +13,16 @@ namespace Application.Features.Orders.Commands.CreateOrder
     public record CreateOrderCommand : IRequest<Unit>
     {
         public Guid? SelectedCustomerId { get; set; }
+        public CreateAddressDto? Address { get; set; }
         public CreateCustomerDto? NewCustomer { get; set; }
         public CreateOrderDto Order { get; set; }
     }
 
     public class CreateOrderCommandValidator : AbstractValidator<CreateOrderCommand>
     {
-        public CreateOrderCommandValidator() 
+        public CreateOrderCommandValidator(
+            IUnitOfWork unitOfWork
+            )
         {
             When(x => x.SelectedCustomerId == null, () =>
             {
@@ -26,31 +30,34 @@ namespace Application.Features.Orders.Commands.CreateOrder
                     .NotNull()
                     .WithMessage("Customer information is required for a new customer.");
 
+                RuleFor(x => x.Address)
+                    .NotNull()
+                    .WithMessage("Address information is required for a new customer.");
+
                 RuleFor(x => x.NewCustomer!.Name)
                     .NotEmpty().WithMessage("Customer name is required.")
                     .MaximumLength(100).WithMessage("Customer name must not exceed 100 characters.");
 
                 RuleFor(x => x.NewCustomer!.PrimaryPhone)
-                    .NotEmpty().WithMessage("Primary phone is required.")
-                    .Matches(@"^\+?[1-9]\d{1,14}$").WithMessage("Primary phone must be a valid international phone number.");
+                    .NotEmpty().WithMessage("Primary phone is required.");
 
-                RuleFor(x => x.NewCustomer!.ApartmentNumber)
+                RuleFor(x => x.Address!.ApartmentNumber)
                     .NotEmpty()
                     .WithMessage("Apartment number is required.");
 
-                RuleFor(x => x.NewCustomer!.FloorNumber)
+                RuleFor(x => x.Address!.FloorNumber)
                     .NotEmpty()
                     .WithMessage("Floor number is required.");
 
-                RuleFor(x => x.NewCustomer!.BuildingName)
+                RuleFor(x => x.Address!.BuildingName)
                     .NotEmpty()
                     .WithMessage("Building name is required.");
 
-                RuleFor(x => x.NewCustomer!.Street)
+                RuleFor(x => x.Address!.Street)
                     .NotEmpty()
                     .WithMessage("Street is required.");
 
-                RuleFor(x => x.NewCustomer!.District)
+                RuleFor(x => x.Address!.DistrictId)
                     .NotEmpty()
                     .WithMessage("District is required.");
             });
@@ -60,9 +67,13 @@ namespace Application.Features.Orders.Commands.CreateOrder
                 .IsInEnum().WithMessage("OrderType is invalid.");
 
             // Delivery Date Validation
-            RuleFor(x => x.Order.DeliveryDate)
-                .GreaterThanOrEqualTo(DateTime.UtcNow).When(x => x.Order.DeliveryDate.HasValue)
-                .WithMessage("Delivery date cannot be in the past.");
+            When(x => x.Order.DeliveryDate.HasValue, () =>
+            {
+                RuleFor(x => x.Order.DeliveryDate)
+                    .GreaterThanOrEqualTo(DateTime.UtcNow)
+                    .WithMessage("Delivery date cannot be in the past.");
+
+            });
 
             // Order Items Validation
             RuleForEach(x => x.Order.Items).SetValidator(new CreateOrderItemDtoValidator());
@@ -70,10 +81,12 @@ namespace Application.Features.Orders.Commands.CreateOrder
     }
 
     public class CreateOrderCommandHandler(
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        IMapper mapper
         ) : IRequestHandler<CreateOrderCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
 
         public async Task<Unit> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
@@ -90,33 +103,33 @@ namespace Application.Features.Orders.Commands.CreateOrder
                 else
                 {
                     var address = new Address(
-                        request.NewCustomer!.ApartmentNumber,
-                        request.NewCustomer!.FloorNumber,
-                        request.NewCustomer!.BuildingName,
-                        request.NewCustomer!.Street,
-                        request.NewCustomer!.District,
-                        request.NewCustomer!.City ?? "Alexandria"
+                        request.Address!.ApartmentNumber,
+                        request.Address!.FloorNumber,
+                        request.Address!.BuildingName,
+                        request.Address!.Street,
+                        request.Address!.DistrictId
                     );
 
                     customer = new Customer(
-                        request.NewCustomer.Name,
+                        request.NewCustomer!.Name,
                         new Phone(request.NewCustomer.PrimaryPhone),
-                        address,
                         null,
                         string.IsNullOrWhiteSpace(request.NewCustomer.SecondaryPhone)
                             ? null
                             : new Phone(request.NewCustomer.SecondaryPhone)
                     );
 
+                    customer.AddAddress(address);
+
                     await _unitOfWork.Customers.AddAsync(customer, cancellationToken);
                 }
 
                 // Handle Order
-                var order = new Order(customer.Id, request.Order.OrderType, deliveryDate: request.Order.DeliveryDate, request.Order.Notes);
+                var order = new Order(customer.Id, request.Order.OrderType, request.Order.DeliveryFees ?? 0, deliveryDate: request.Order.DeliveryDate, request.Order.Notes);
 
                 foreach (var item in request.Order.Items)
                 {
-                    var itemColor = new Color(item.Color);
+                    var itemColor = new Color(string.Empty);
 
                     var orderItem = new OrderItem(
                         order.Id,

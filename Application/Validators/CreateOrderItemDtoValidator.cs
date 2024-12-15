@@ -7,6 +7,11 @@ namespace Application.Validators
     {
         public CreateOrderItemDtoValidator()
         {
+            RuleFor(x => x.PieceId)
+                .NotNull()
+                .NotEmpty()
+                .WithMessage("The specified piece does not exist.");
+
             RuleFor(x => x.Quantity)
                 .GreaterThan(0)
                 .WithMessage("Quantity must be greater than 0.");
@@ -14,15 +19,6 @@ namespace Application.Validators
             RuleFor(x => x.SingleQuantityPrice)
                 .GreaterThan(0)
                 .WithMessage("Single quantity price must be greater than 0.");
-
-            RuleFor(x => x.Color)
-                .NotEmpty()
-                .WithMessage("Color is required.");
-
-            RuleFor(x => x.CleaningTypeIds)
-                .NotEmpty()
-                .WithMessage("At least one cleaning type is required.");
         }
     }
-
 }

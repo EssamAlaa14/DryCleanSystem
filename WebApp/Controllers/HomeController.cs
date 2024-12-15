@@ -1,4 +1,3 @@
-using Application.Features.Customers.Commands.CreateCustomer;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -17,35 +16,6 @@ namespace WebApp.Controllers
         public IActionResult Index()
         {
             return View();
-        }
-
-        [HttpGet]
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateCustomerCommand command)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(command); // Return the view with validation messages
-            }
-
-            try
-            {
-                var customerId = await _mediator.Send(command);
-                TempData["SuccessMessage"] = $"Customer created successfully with ID: {customerId}";
-                return RedirectToAction("Create");
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions and display error messages
-                ModelState.AddModelError(string.Empty, $"An error occurred: {ex.Message}");
-                return View(command);
-            }
         }
 
         public IActionResult Privacy()

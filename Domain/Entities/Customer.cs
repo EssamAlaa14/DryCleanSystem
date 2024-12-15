@@ -9,7 +9,7 @@ namespace Domain.Entities
         public Email? Email { get; private set; }
         public Phone PrimaryPhone { get; private set; }
         public Phone? SecondaryPhone { get; private set; }
-        public Address Address { get; private set; }
+        public ICollection<Address> Addresses { get; private set; } = [];
 
         // EF Core requires a private parameterless constructor for materialization
         private Customer() { }
@@ -17,14 +17,12 @@ namespace Domain.Entities
         public Customer(
             string name,
             Phone primaryPhone,
-            Address address,
             Email? email = null,
             Phone? secondaryPhone = null
             )
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             PrimaryPhone = primaryPhone ?? throw new ArgumentNullException(nameof(primaryPhone));
-            Address = address ?? throw new ArgumentNullException(nameof(address));
             Email = email; // Optional
             SecondaryPhone = secondaryPhone; // Optional
         }
@@ -47,14 +45,6 @@ namespace Domain.Entities
             UpdateTimestamp();
         }
 
-        public void UpdateAddress(Address newAddress)
-        {
-            ArgumentNullException.ThrowIfNull(newAddress);
-
-            Address = newAddress;
-            UpdateTimestamp();
-        }
-
         public void UpdateEmail(Email? newEmail)
         {
             Email = newEmail; // Allows null to unset email
@@ -65,6 +55,18 @@ namespace Domain.Entities
         {
             SecondaryPhone = newSecondaryPhone; // Allows null to unset secondary phone
             UpdateTimestamp();
+        }
+
+        public void AddAddress(Address address)
+        {
+            ArgumentNullException.ThrowIfNull(address);
+            Addresses.Add(address);
+        }
+
+        public void RemoveAddress(Address address)
+        {
+            ArgumentNullException.ThrowIfNull(address);
+            Addresses.Remove(address);
         }
 
         protected new void UpdateTimestamp() => UpdatedAt = DateTime.UtcNow;

@@ -8,6 +8,7 @@ namespace WebApp.ViewModels
         public List<CustomerDto> Customers { get; set; } = [];
         public List<PieceDto> Pieces { get; set; } = [];
         public List<CleaningTypeDto> CleaningTypeOptions { get; set; } = [];
+        public List<DistrictDto> Districts { get; set; } = [];
     }
 
     public class CreateOrderViewModel

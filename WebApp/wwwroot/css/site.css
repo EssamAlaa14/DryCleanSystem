@@ -29,3 +29,11 @@ body {
 .separator {
     margin: 16px;
 }
+
+.piece-dropdown-container {
+    gap: 12px;
+}
+
+    .piece-dropdown-container .form-group {
+        width: 100%;
+    }

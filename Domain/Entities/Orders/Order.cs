@@ -11,8 +11,9 @@ namespace Domain.Entities.Orders
         public List<OrderItem> Items { get; private set; } = [];
         public DateTime? DeliveryDate { get; private set; }
         public long InvoiceNumber { get; private set; }
+        public short? DeliveryFees { get; private set; }
         public string? Notes { get; private set; }
-        public decimal TotalOrderPrice => Items.Sum(item => item.TotalPrice);
+        public decimal TotalOrderPrice => Items.Sum(item => item.TotalPrice) + DeliveryFees ?? 0;
 
         // EF Core requires a private parameterless constructor for materialization
         private Order() { }
@@ -21,6 +22,7 @@ namespace Domain.Entities.Orders
         public Order(
             Guid customerId,
             OrderType orderType,
+            short deliveryFees = 0, 
             DateTime? deliveryDate = null,
             string? notes = null
             )
@@ -34,6 +36,7 @@ namespace Domain.Entities.Orders
             CustomerId = customerId;
             OrderType = orderType;
             DeliveryDate = deliveryDate;
+            DeliveryFees = deliveryFees;
             Notes = notes?.Trim();
         }
 
