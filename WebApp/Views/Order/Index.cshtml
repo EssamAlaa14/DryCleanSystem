@@ -1,17 +1,36 @@
 ﻿@model IEnumerable<Application.Common.DTOs.InfoDtos.OrderDto>;
+<link rel="stylesheet" href="/lib/datatables.net-dt/css/dataTables.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
 
-<table>
+<table id="orders" class="display">
     <thead>
         <tr>
-            <th>Order Id</th>
+            <th>رقم الفاتورة</th>
+            <th>اسم العميل</th>
+            <th>تاريخ التسليم</th>
+            <th>حالة الطلب</th>
+            <th>اجمالي المبلغ</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var order in Model)
         {
             <tr>
-                <td>@order.Id</td>
+                <td>@order.InvoiceNumber</td>
+                <td>@order.CustomerName</td>
+                <td>@order.DeliveryDate</td>
+                <td>@order.OrderStatus.GetDisplayName()</td>
+                <td>@order.TotalOrderPrice</td>
             </tr>
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script src="~/lib/datatables.net-dt/js/dataTables.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+    <script>
+        const dataTable = new DataTable('#orders');
+        console.log(dataTable);
+    </script>
+}

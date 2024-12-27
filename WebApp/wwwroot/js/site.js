@@ -15,16 +15,20 @@ document.addEventListener("DOMContentLoaded", function () {
         addOrderItem();
     }
 
-    createOrderForm.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-        }
-    });
+    if (createOrderForm) {
+        createOrderForm.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+            }
+        });
+    }
 
-    deliveryFeesInput.addEventListener("input", function () {
-        deliveryFees = parseInt(deliveryFeesInput.value);
-        calculateTotalPrice();
-    });
+    if (deliveryFeesInput) {
+        deliveryFeesInput.addEventListener("input", function () {
+            deliveryFees = parseInt(deliveryFeesInput.value);
+            calculateTotalPrice();
+        });
+    }
 });
 
 function filterCustomers() {

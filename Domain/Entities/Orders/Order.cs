@@ -8,6 +8,7 @@ namespace Domain.Entities.Orders
         public Guid CustomerId { get; private set; }
         public Customer Customer { get; private set; }
         public OrderType OrderType { get; private set; }
+        public OrderStatus OrderStatus { get; private set; }
         public List<OrderItem> Items { get; private set; } = [];
         public DateTime? DeliveryDate { get; private set; }
         public long InvoiceNumber { get; private set; }
@@ -22,6 +23,7 @@ namespace Domain.Entities.Orders
         public Order(
             Guid customerId,
             OrderType orderType,
+            OrderStatus orderStatus = OrderStatus.New,
             short deliveryFees = 0, 
             DateTime? deliveryDate = null,
             string? notes = null
@@ -35,6 +37,7 @@ namespace Domain.Entities.Orders
 
             CustomerId = customerId;
             OrderType = orderType;
+            OrderStatus = orderStatus;
             DeliveryDate = deliveryDate;
             DeliveryFees = deliveryFees;
             Notes = notes?.Trim();

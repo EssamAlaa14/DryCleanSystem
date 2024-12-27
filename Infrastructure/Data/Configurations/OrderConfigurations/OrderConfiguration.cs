@@ -22,6 +22,10 @@ namespace Infrastructure.Data.Configurations.OrderConfigurations
                 .HasConversion<int>()
                 .IsRequired();
 
+            builder.Property(o => o.OrderStatus)
+                .HasConversion<int>()
+                .IsRequired();
+
             builder.Property(o => o.DeliveryDate)
                 .IsRequired(false);
 

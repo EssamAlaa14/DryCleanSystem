@@ -125,7 +125,14 @@ namespace Application.Features.Orders.Commands.CreateOrder
                 }
 
                 // Handle Order
-                var order = new Order(customer.Id, request.Order.OrderType, request.Order.DeliveryFees ?? 0, deliveryDate: request.Order.DeliveryDate, request.Order.Notes);
+                var order = new Order(
+                    customer.Id,
+                    request.Order.OrderType,
+                    request.Order.OrderStatus,
+                    request.Order.DeliveryFees ?? 0,
+                    request.Order.DeliveryDate,
+                    request.Order.Notes
+                    );
 
                 foreach (var item in request.Order.Items)
                 {
