@@ -3,8 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WebApp</title>
+    <title>@ViewData["Title"] - الصفوة</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/dataTables/css/datatables.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site-ar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/WebApp.styles.css" asp-append-version="true" />
@@ -24,20 +25,20 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">الرئيسية</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/orders">قائمة الطلبات</a>
+                            <a class="nav-link text-danger fw-bold" href="/orders">قائمة الطلبات</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/order/create/@((int)Domain.Enums.OrderType.Clothes)">
+                            <a class="nav-link text-primary fw-bold" href="/order/create/@((int)Domain.Enums.OrderType.Clothes)">
                                 إضافة طلب ملابس
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/order/create/@((int)Domain.Enums.OrderType.Linens)">
+                            <a class="nav-link text-info fw-bold" href="/order/create/@((int)Domain.Enums.OrderType.Linens)">
                                 إضافة طلب مفروشات
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/order/create/@((int)Domain.Enums.OrderType.Rugs)">
+                            <a class="nav-link text-success fw-bold" href="/order/create/@((int)Domain.Enums.OrderType.Rugs)">
                                 إضافة طلب سجاد
                             </a>
                         </li>
@@ -51,14 +52,17 @@
             @RenderBody()
         </div>
     </main>
-
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer">
         <div class="container">
-            &copy; 2025 - دراي كلين الصفوة
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="text-primary-emphasis">&copy; 2025 - دراي كلين الصفوة</p>
+                <p class="fw-bold text-primary-emphasis">إدارة الحاج إبراهيم الونش</p>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/dataTables/js/datatables.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -1,15 +1,17 @@
 ﻿@model IEnumerable<Application.Common.DTOs.InfoDtos.OrderDto>;
-<link rel="stylesheet" href="/lib/datatables.net-dt/css/dataTables.dataTables.min.css" />
-<link rel="stylesheet" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css" />
-
-<table id="orders" class="display">
+@using Domain.Enums;
+@Html.AntiForgeryToken()
+<table id="orders" class="table table-striped">
     <thead>
         <tr>
             <th>رقم الفاتورة</th>
+            <th>نوع الطلب</th>
+            <th>تاريخ الإنشاء</th>
             <th>اسم العميل</th>
-            <th>تاريخ التسليم</th>
             <th>حالة الطلب</th>
             <th>اجمالي المبلغ</th>
+            <th>ملاحظات</th>
+            <th>التفاصيل</th>
         </tr>
     </thead>
     <tbody>
@@ -17,20 +19,55 @@
         {
             <tr>
                 <td>@order.InvoiceNumber</td>
+                <td>@order.OrderType.GetDisplayName()</td>
+                <td class="date-format">@order.OrderDate</td>
                 <td>@order.CustomerName</td>
-                <td>@order.DeliveryDate</td>
-                <td>@order.OrderStatus.GetDisplayName()</td>
-                <td>@order.TotalOrderPrice</td>
+                <td><p class="status-@((int)order.OrderStatus)">@order.OrderStatus.GetDisplayName()</p></td>
+                <td class="text-center">@order.TotalOrderPrice.ToString("F0") جنيه</td>
+                <td>@order.Notes</td>
+                <td>
+                    <div><a class="btn btn-primary w-100" href="/order/details/@order.Id">التفاصيل</a></div>
+                    @if (order.OrderStatus != OrderStatus.Delivered)
+                    {
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#updateOrderModal"
+                                    data-order-id="@order.Id">
+                                تعديل
+                            </button>
+                        </div>
+                    }
+                </td>
             </tr>
         }
     </tbody>
 </table>
+<input type="hidden" id="orderId" value="" />
+<div class="modal" tabindex="-1" id="updateOrderModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تعديل حالة الطلب</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إلغاء"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="orderId" />
+                <div class="form-group">
+                    <label class="text-danger font-weight-bold" for="order-status">حالة الطلب</label>
+                    <select class="form-control" required id="order-status">
+                        <option value="@((int)OrderStatus.InProgress)"> @OrderStatus.InProgress.GetDisplayName() </option>
+                        <option value="@((int)OrderStatus.Completed)"> @OrderStatus.Completed.GetDisplayName() </option>
+                        <option value="@((int)OrderStatus.Delivered)"> @OrderStatus.Delivered.GetDisplayName() </option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn btn-primary" onclick="confirmOrderChanges()">حفظ التغييرات</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    <script src="~/lib/datatables.net-dt/js/dataTables.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
-    <script>
-        const dataTable = new DataTable('#orders');
-        console.log(dataTable);
-    </script>
+    <script src="~/js/orders.js" asp-append-version="true"></script>
 }

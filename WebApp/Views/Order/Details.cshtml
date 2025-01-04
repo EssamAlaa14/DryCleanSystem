@@ -1,0 +1,116 @@
+﻿@model Application.Common.DTOs.InfoDtos.OrderDto;
+
+<section class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">تفاصيل الطلب</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>رقم الفاتورة:</strong>
+                    <p class="fw-bold text-primary-emphasis">@Model.InvoiceNumber</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>نوع الطلب:</strong>
+                    <p class="fw-bold text-primary-emphasis">@Model.OrderType.GetDisplayName()</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>حالة الطلب:</strong>
+                    <p class="fw-bold status-@((int)Model.OrderStatus)">@Model.OrderStatus.GetDisplayName()</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>تاريخ الطلب:</strong>
+                    <p class="fw-bold text-primary-emphasis date-format">@Model.OrderDate</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>تاريخ التوصيل:</strong>
+                    <p class="fw-bold text-primary-emphasis date-format">@(Model.DeliveryDate.HasValue ? Model.DeliveryDate?.ToString("dd-MM-yyyy HH:mm") : "لم يتحدد")</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>السعر بدون الرسوم:</strong>
+                    <p class="fw-bold text-danger">@Model.Items.Sum(i => i.TotalPrice).ToString("F0") جنيه</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <strong>اسم العميل:</strong>
+                    <p class="fw-bold text-primary-emphasis">@Model.CustomerName</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>رقم الهاتف:</strong>
+                    <p class="fw-bold text-primary-emphasis">@Model.CustomerPhone</p>
+                </div>
+                <div class="col-md-4">
+                    <strong>رسوم التوصيل:</strong>
+                    <p class="fw-bold text-danger">@Model.DeliveryFees.ToString("F0") جنيه</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8">
+                    <strong>العنوان:</strong>
+                    <p class="fw-bold text-primary-emphasis">@Model.AddressDetails</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="total-div">
+                        <strong>الإجمالي:</strong>
+                        <p class="fw-bold text-danger">@Model.TotalOrderPrice.ToString("F0") جنيه</p>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <h5 class="text-primary mb-3">تفاصيل العناصر في الطلب</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">اسم القطعة</th>
+                            <th scope="col">الوصف</th>
+                            <th scope="col">الكمية</th>
+                            <th scope="col">سعر القطعة</th>
+                            <th scope="col">الإجمالي</th>
+                            @if (Model.OrderType == Domain.Enums.OrderType.Clothes)
+                            {
+                                <th scope="col">أنواع التنظيف</th>
+                            }
+                            <th scope="col">التعليق</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items != null && Model.Items.Any())
+                        {
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>@item.PieceName</td>
+                                    <td>@(item.Description ?? "لا يوجد")</td>
+                                    <td>@item.Quantity قطعة</td>
+                                    <td>@item.SingleQuantityPrice.ToString("F0") جنيه</td>
+                                    <td>@item.TotalPrice.ToString("F0") جنيه</td>
+                                    @if (Model.OrderType == Domain.Enums.OrderType.Clothes)
+                                    {
+                                        <td>@item.CleaningTypes</td>
+                                    }
+                                    <td>@(item.Comment ?? "لا يوجد")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center">لا توجد عناصر في الطلب.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-12 mt-3">
+                    <strong>ملاحظات:</strong>
+                    <p class="fw-bold text-primary-emphasis">@(!string.IsNullOrEmpty(Model.Notes) ? Model.Notes : "لا يوجد")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

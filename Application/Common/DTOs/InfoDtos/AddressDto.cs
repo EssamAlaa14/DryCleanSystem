@@ -25,7 +25,22 @@ namespace Application.Common.DTOs.InfoDtos
         {
             public Mapping()
             {
-                CreateMap<Address, AddressDto>();
+                CreateMap<Address, AddressDto>().ReverseMap();
+            }
+        }
+    }
+
+    public class CustomerAddressDto
+    {
+        public Guid Id { get; set; }
+        public string AddressInfo { get; set; }
+
+        private class Mapping : Profile
+        {
+            public Mapping()
+            {
+                CreateMap<Address, CustomerAddressDto>()
+                    .ForMember(dest => dest.AddressInfo, opt => opt.MapFrom(src => src.ToString()));
             }
         }
     }

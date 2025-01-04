@@ -39,9 +39,9 @@ namespace Infrastructure.Data
             {
                 var cleaningTypes = new List<CleaningType>
                 {
-                    new("غسيل"),
-                    new("مكواة"),
-                    new("صبغة")
+                    new("غسيل", 1),
+                    new("مكواة", 2),
+                    new("صبغة", 3)
                 };
 
                 await context.CleaningTypes.AddRangeAsync(cleaningTypes);
@@ -61,28 +61,28 @@ namespace Infrastructure.Data
             {
                 var pieces = new List<Piece>
                 {
-                    new("تيشرت نص", ClothingType.ExternalClothing),
-                    new("تيشرت كم", ClothingType.ExternalClothing),
-                    new("بنطلون جينز", ClothingType.ExternalClothing),
-                    new("سويت بانتس", ClothingType.ExternalClothing),
-                    new("سويت شيرت", ClothingType.ExternalClothing),
-                    new("جاكيت", ClothingType.ExternalClothing),
-                    new("قميص نص", ClothingType.ExternalClothing),
-                    new("قميص كم", ClothingType.ExternalClothing),
-                    new("شرابات", ClothingType.ExternalClothing),
-                    new("طقم داخلي", ClothingType.InternalClothing),
-                    new("تيشرت نص داخلي", ClothingType.InternalClothing),
-                    new("تيشرت كم داخلي", ClothingType.InternalClothing),
-                    new("طقم دفاية", ClothingType.InternalClothing),
-                    new("سجادة", ClothingType.Carpet),
-                    new("مشاية", ClothingType.Rug),
-                    new("دواسة", ClothingType.Rug),
-                    new("ستارة", ClothingType.Linen),
-                    new("طقم سرير", ClothingType.Linen),
-                    new("بطانية", ClothingType.Linen),
-                    new("لحاف", ClothingType.Linen),
-                    new("خدادية", ClothingType.Linen),
-                    new("مخدة", ClothingType.Linen),
+                    new("تيشرت نص", 0, ClothingType.ExternalClothing),
+                    new("تيشرت كم", 0, ClothingType.ExternalClothing),
+                    new("بنطلون جينز", 1, ClothingType.ExternalClothing),
+                    new("سويت بانتس", 1, ClothingType.ExternalClothing),
+                    new("سويت شيرت", 2, ClothingType.ExternalClothing),
+                    new("جاكيت", 3, ClothingType.ExternalClothing),
+                    new("قميص نص", 4, ClothingType.ExternalClothing),
+                    new("قميص كم", 4, ClothingType.ExternalClothing),
+                    new("شرابات", 5, ClothingType.ExternalClothing),
+                    new("طقم داخلي", 6, ClothingType.InternalClothing),
+                    new("تيشرت نص داخلي", 6, ClothingType.InternalClothing),
+                    new("تيشرت كم داخلي", 6, ClothingType.InternalClothing),
+                    new("طقم دفاية", 7, ClothingType.InternalClothing),
+                    new("سجادة", 1, ClothingType.Carpet),
+                    new("مشاية", 2, ClothingType.Rug),
+                    new("دواسة", 3, ClothingType.Rug),
+                    new("بطانية", 0, ClothingType.Linen),
+                    new("لحاف", 0, ClothingType.Linen),
+                    new("ستارة", 1, ClothingType.Linen),
+                    new("طقم سرير", 2, ClothingType.Linen),
+                    new("خدادية", 3, ClothingType.Linen),
+                    new("مخدة", 4, ClothingType.Linen),
                 };
 
                 await context.Pieces.AddRangeAsync(pieces);
@@ -102,19 +102,18 @@ namespace Infrastructure.Data
             {
                 var districts = new List<District>
                 {
-                    new("السيوف شماعة", 0),
-                    new("عذبة محسن", 0),
-                    new("زقزوق", 0),
-                    new("العوايد", 0),
-                    new("ابوسليمان", 0),
-                    new("فيكتوريا", 0),
-                    new("المراغي", 0),
-                    new("المهاجرين", 0),
-                    new("اسكوت", 0),
-                    new("كارفور السيوف", 0),
-                    new("مصطفى كامل", 0),
-                    new("سموحة", 0),
-                    new("محرم بك", 0)
+                    new("السيوف شماعة", 0, 0),
+                    new("كارفور السيوف", 0, 1),
+                    new("عذبة محسن", 0, 2),
+                    new("زقزوق", 0, 3),
+                    new("ابوسليمان", 0, 4),
+                    new("العوايد", 0, 5),
+                    new("المراغي", 0, 6),
+                    new("المهاجرين", 0, 7),
+                    new("فيكتوريا", 0, 8),
+                    new("مصطفى كامل", 0, 9),
+                    new("سموحة", 0, 10),
+                    new("محرم بك", 0, 11)
                 };
 
                 await context.Districts.AddRangeAsync(districts);

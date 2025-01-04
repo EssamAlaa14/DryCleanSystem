@@ -6,7 +6,6 @@ namespace Domain.Entities
     public class Customer : BaseEntity
     {
         public string Name { get; private set; }
-        public Email? Email { get; private set; }
         public Phone PrimaryPhone { get; private set; }
         public Phone? SecondaryPhone { get; private set; }
         public ICollection<Address> Addresses { get; private set; } = [];
@@ -17,43 +16,32 @@ namespace Domain.Entities
         public Customer(
             string name,
             Phone primaryPhone,
-            Email? email = null,
             Phone? secondaryPhone = null
             )
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Name = name?.Trim() ?? throw new ArgumentNullException(nameof(name));
             PrimaryPhone = primaryPhone ?? throw new ArgumentNullException(nameof(primaryPhone));
-            Email = email; // Optional
-            SecondaryPhone = secondaryPhone; // Optional
+            SecondaryPhone = secondaryPhone;
         }
 
         // Update Methods (Behavior)
-        public void UpdateName(string newName)
+        public void UpdateName(string name)
         {
-            if (string.IsNullOrWhiteSpace(newName))
-                throw new ArgumentException("Name cannot be null or whitespace.", nameof(newName));
-
-            Name = newName;
+            ArgumentNullException.ThrowIfNull(name);
+            Name = name.Trim();
             UpdateTimestamp();
         }
 
-        public void UpdatePrimaryPhone(Phone newPrimaryPhone)
+        public void UpdatePrimaryPhone(Phone primaryPhone)
         {
-            ArgumentNullException.ThrowIfNull(newPrimaryPhone);
-
-            PrimaryPhone = newPrimaryPhone;
+            ArgumentNullException.ThrowIfNull(primaryPhone);
+            PrimaryPhone = primaryPhone;
             UpdateTimestamp();
         }
 
-        public void UpdateEmail(Email? newEmail)
+        public void UpdateSecondaryPhone(Phone? seconaryPhone)
         {
-            Email = newEmail; // Allows null to unset email
-            UpdateTimestamp();
-        }
-
-        public void UpdateSecondaryPhone(Phone? newSecondaryPhone)
-        {
-            SecondaryPhone = newSecondaryPhone; // Allows null to unset secondary phone
+            SecondaryPhone = seconaryPhone;
             UpdateTimestamp();
         }
 
@@ -61,14 +49,14 @@ namespace Domain.Entities
         {
             ArgumentNullException.ThrowIfNull(address);
             Addresses.Add(address);
+            UpdateTimestamp();
         }
 
         public void RemoveAddress(Address address)
         {
             ArgumentNullException.ThrowIfNull(address);
             Addresses.Remove(address);
+            UpdateTimestamp();
         }
-
-        protected new void UpdateTimestamp() => UpdatedAt = DateTime.UtcNow;
     }
 }

@@ -6,6 +6,7 @@ namespace Domain.Entities.Orders
     public class Order : BaseEntity
     {
         public Guid CustomerId { get; private set; }
+        public Guid AddressId { get; private set; }
         public Customer Customer { get; private set; }
         public OrderType OrderType { get; private set; }
         public OrderStatus OrderStatus { get; private set; }
@@ -22,23 +23,20 @@ namespace Domain.Entities.Orders
         // Constructor
         public Order(
             Guid customerId,
+            Guid addressId,
             OrderType orderType,
             OrderStatus orderStatus = OrderStatus.New,
-            short deliveryFees = 0, 
-            DateTime? deliveryDate = null,
+            short deliveryFees = 0,
             string? notes = null
             )
         {
             if (customerId == Guid.Empty) throw new ArgumentException("CustomerId cannot be empty.");
-            if (deliveryDate.HasValue && deliveryDate.Value < DateTime.UtcNow)
-            {
-                throw new ArgumentException("DeliveryDate cannot be earlier than the current time.");
-            }
+            if (addressId == Guid.Empty) throw new ArgumentException("AddressId cannot be empty.");
 
             CustomerId = customerId;
+            AddressId = addressId;
             OrderType = orderType;
             OrderStatus = orderStatus;
-            DeliveryDate = deliveryDate;
             DeliveryFees = deliveryFees;
             Notes = notes?.Trim();
         }
@@ -47,27 +45,30 @@ namespace Domain.Entities.Orders
         {
             ArgumentNullException.ThrowIfNull(item);
             Items.Add(item);
+            UpdateTimestamp();
         }
 
         public void RemoveItem(Guid itemId)
         {
             var item = Items.SingleOrDefault(i => i.Id == itemId) ?? throw new InvalidOperationException("Item not found.");
             Items.Remove(item);
-        }
-
-        public void UpdateDeliveryDate(DateTime? deliveryDate)
-        {
-            if (deliveryDate.HasValue && deliveryDate.Value < CreatedAt)
-            {
-                throw new ArgumentException("DeliveryDate cannot be earlier than OrderDate.");
-            }
-
-            DeliveryDate = deliveryDate;
+            UpdateTimestamp();
         }
 
         public void UpdateNotes(string? notes)
         {
             Notes = notes?.Trim();
+            UpdateTimestamp();
+        }
+
+        public void UpdateOrderStatus(OrderStatus orderStatus)
+        {
+            OrderStatus = orderStatus;
+            if (orderStatus == OrderStatus.Delivered)
+            {
+                DeliveryDate = DateTime.Now;
+            }
+            UpdateTimestamp();
         }
     }
 }

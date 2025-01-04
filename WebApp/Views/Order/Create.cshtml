@@ -3,7 +3,6 @@
 
 <section class="section">
     <h2>إضافة طلب جديد</h2>
-
     <form action="javascript:void(0)" id="createOrderForm">
         @Html.AntiForgeryToken()
         <input type="hidden" asp-for="Command.Order.OrderType" value="@((int)Model.Command.Order.OrderType)" />
@@ -37,11 +36,13 @@
                                    onkeyup="filterCustomers();" />
                         </div>
                     </div>
-
-                    <div class="col-7">
+                    <div class="col-3">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" for="Command_SelectedCustomerId">إختيار العميل من قائمة العملاء السابقين</label>
-                            <select asp-for="Command.SelectedCustomerId" class="form-select" onchange="toggleNewCustomerForm()">
+                            <label class="h6 mb-2 text-primary" for="Command_SelectedCustomerId">
+                                إختيار العميل من قائمة العملاء السابقين
+                                <sup class="text-danger">*</sup>
+                            </label>
+                            <select asp-for="Command.SelectedCustomerId" class="form-select" onchange="toggleNewCustomerForm(this)">
                                 <option value="">-- إختر عميل --</option>
                                 @foreach (var customer in Model.OrderListItemsModel!.Customers)
                                 {
@@ -50,19 +51,33 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-6 d-none" id="addressList">
+                        <div class="form-group">
+                            <label class="h6 mb-2 text-primary" for="Command_SelectedAddressId">إختيار العنوان</label>
+                            <select asp-for="Command.SelectedAddressId" class="form-select">
+                                <option value="">-- إختر عنوان العميل --</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="newCustomerForm" class="row d-none">
                     <div class="col-4">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.Name"> الاسم </label>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.Name">
+                                الاسم
+                                <sup class="text-danger">*</sup>
+                            </label>
                             <input data-required="true" asp-for="Command.NewCustomer!.Name" class="form-control" placeholder="اسم العميل" />
                             <span asp-validation-for="Command.NewCustomer!.Name" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.PrimaryPhone">رقم الهاتف</label>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.NewCustomer!.PrimaryPhone">
+                                رقم الهاتف
+                                <sup class="text-danger">*</sup>
+                            </label>
                             <input data-required="true" asp-for="Command.NewCustomer!.PrimaryPhone" class="form-control" placeholder="رقم الهاتف" />
                             <span asp-validation-for="Command.NewCustomer!.PrimaryPhone" class="text-danger"></span>
                         </div>
@@ -75,8 +90,11 @@
                     </div>
                     <div class="col-2">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.DistrictId">المنطقة</label>
-                            <select data-required="true" asp-for="Command.Address!.DistrictId" class="form-select">
+                            <label class="h6 mb-2 text-primary" asp-for="Command.NewAddress!.DistrictId">
+                                المنطقة
+                                <sup class="text-danger">*</sup>
+                            </label>
+                            <select data-required="true" asp-for="Command.NewAddress!.DistrictId" class="form-select">
                                 <option value="">-- إختر المنطقة --</option>
                                 @foreach (var district in Model.OrderListItemsModel!.Districts)
                                 {
@@ -87,22 +105,32 @@
                     </div>
                     <div class="col-6">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.Street">الشارع</label>
-                            <input data-required="true" asp-for="Command.Address!.Street" class="form-control" placeholder="الشارع" />
-                            <span asp-validation-for="Command.Address!.Street" class="text-danger"></span>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.NewAddress!.Street">
+                                \
+                                الشارع
+                                <sup class="text-danger">*</sup>
+                            </label>
+                            <input data-required="true" asp-for="Command.NewAddress!.Street" class="form-control" placeholder="الشارع" />
+                            <span asp-validation-for="Command.NewAddress!.Street" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.BuildingName">اسم أو رقم المبنى/البرج</label>
-                            <input data-required="true" asp-for="Command.Address!.BuildingName" class="form-control" placeholder="اسم أو رقم المبنى/البرج" />
-                            <span asp-validation-for="Command.Address!.BuildingName" class="text-danger"></span>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.NewAddress!.BuildingName">
+                                اسم أو رقم المبنى/البرج
+                                <sup class="text-danger">*</sup>
+                            </label>
+                            <input data-required="true" asp-for="Command.NewAddress!.BuildingName" class="form-control" placeholder="اسم أو رقم المبنى/البرج" />
+                            <span asp-validation-for="Command.NewAddress!.BuildingName" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.FloorNumber">الدور</label>
-                            <select data-required="true" asp-for="Command.Address!.FloorNumber" class="form-select">
+                            <label class="h6 mb-2 text-primary" asp-for="Command.NewAddress!.FloorNumber">
+                                الدور
+                                <sup class="text-danger">*</sup>
+                            </label>
+                            <select data-required="true" asp-for="Command.NewAddress!.FloorNumber" class="form-select">
                                 <option value="">-- إختر الدور --</option>
                                 @for (var i = 0; i < 18; i++)
                                 {
@@ -113,9 +141,12 @@
                     </div>
                     <div class="col-3">
                         <div class="form-group">
-                            <label class="h6 mb-2 text-primary" asp-for="Command.Address!.ApartmentNumber">رقم الشقة/اسم الشقة</label>
-                            <input data-required="true" asp-for="Command.Address!.ApartmentNumber" class="form-control" placeholder="رقم الشقة/اسم الشقة" />
-                            <span asp-validation-for="Command.Address!.ApartmentNumber" class="text-danger"></span>
+                            <label class="h6 mb-2 text-primary" asp-for="Command.NewAddress!.ApartmentNumber">
+                                رقم الشقة/اسم الشقة
+                                <sup class="text-danger">*</sup>
+                            </label>
+                            <input data-required="true" asp-for="Command.NewAddress!.ApartmentNumber" class="form-control" placeholder="رقم الشقة/اسم الشقة" />
+                            <span asp-validation-for="Command.NewAddress!.ApartmentNumber" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
@@ -138,7 +169,7 @@
             <div class="col-12">
                 <h4 class="fw-bold text-decoration-underline">تفاصيل الطلب</h4>
             </div>
-            <div class="col-3">
+            <div class="col-2">
                 <div id="orderSummaryContainer">
                 </div>
             </div>
@@ -148,16 +179,10 @@
                     <input type="number" min="0" value="0" asp-for="Command.Order.DeliveryFees" class="form-control" />
                 </div>
             </div>
-            <div class="col-2">
-                <div class="form-group">
-                    <label class="h6 mb-2 text-primary" asp-for="Command.Order.DeliveryDate">تاريخ التسليم المتوقع</label>
-                    <input asp-for="Command.Order.DeliveryDate" class="form-control" type="date" />
-                </div>
-            </div>
-            <div class="col-4">
+            <div class="col-6">
                 <div class="form-group">
                     <label class="h6 mb-2 text-primary" asp-for="Command.Order.Notes">إضافة ملاحظات</label>
-                    <textarea asp-for="Command.Order.Notes" placeholder="ملاحظات" rows="4" class="form-control"></textarea>
+                    <textarea asp-for="Command.Order.Notes" placeholder="ملاحظات" rows="2" class="form-control"></textarea>
                 </div>
             </div>
         </div>
@@ -176,7 +201,10 @@
             <div class="row">
                 <div class="col-2">
                     <div class="form-group">
-                        <label class="h6 mb-2 text-danger" for="Items_{{orderItemIndex}}__PieceId">القطعة</label>
+                        <label class="h6 mb-2 text-danger" for="Items_{{orderItemIndex}}__PieceId">
+                            القطعة
+                            <sup class="text-danger">*</sup>
+                        </label>
                         <select id="Items_{{orderItemIndex}}__PieceId" class="form-select" required>
                             <option value="">-- إختر القطعة --</option>
                             @foreach (var piece in Model.OrderListItemsModel.Pieces)
@@ -188,8 +216,11 @@
                 </div>
                 <div class="col-1">
                     <div class="form-group">
-                        <label class="h6 mb-2 text-danger" for="Items_{{orderItemIndex}}__Quantity">الكمية</label>
-                        <select id="Items_{{orderItemIndex}}__Quantity" name="Items[{{orderItemIndex}}].Quantity" class="form-select">
+                        <label class="h6 mb-2 text-danger" for="Items_{{orderItemIndex}}__Quantity">
+                            الكمية
+                            <sup class="text-danger">*</sup>
+                        </label>
+                        <select id="Items_{{orderItemIndex}}__Quantity" name="Items[{{orderItemIndex}}].Quantity" class="form-select" required>
                             <option value="1" selected>1</option>
                             @for (var i = 2; i <= (Model.Command.Order.OrderType == OrderType.Clothes ? 100 : 10); i++)
                             {
@@ -202,32 +233,45 @@
                     <div class="form-group">
                         <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__Description">
                             @(Model.Command.Order.OrderType == OrderType.Rugs ? "الوصف/المقاس" : "الوصف")
+                            <sup class="text-danger">*</sup>
                         </label>
-                        <input id="Items_{{orderItemIndex}}__Description" name="Items[{{orderItemIndex}}].Description" class="form-control" />
+                        <input id="Items_{{orderItemIndex}}__Description" name="Items[{{orderItemIndex}}].Description" class="form-control" required />
                     </div>
                 </div>
-                <div class="col-2">
-                    <div class="d-flex justify-content-between align-items-start">
-                        @if (Model.Command.Order.OrderType == OrderType.Clothes)
-                        {
-                            <div class="form-group">
-                                <label class="h6 mb-2 text-primary">المطلوب؟</label>
-                                <div class="d-flex flex-column align-items-start justify-content-center">
-                                    @foreach (var cleaningOption in Model.OrderListItemsModel.CleaningTypeOptions)
-                                    {
-                                        <label class="h6 px-3">
-                                            <input type="checkbox" name="Items[{{orderItemIndex}}].CleaningTypeOption" value="@(cleaningOption.Id)" />
-                                            @cleaningOption.Name
-                                        </label>
-                                    }
-                                </div>
+                @if (Model.Command.Order.OrderType == OrderType.Clothes)
+                {
+                    <div class="col-2">
+                        <div class="form-group">
+                            <label class="h6 mb-2 text-primary">
+                                المطلوب؟
+                                <sup class="text-danger">*</sup>
+                            </label>
+                            <div class="d-flex flex-column align-items-start justify-content-center">
+                                @foreach (var cleaningOption in Model.OrderListItemsModel.CleaningTypeOptions)
+                                {
+                                    <label class="h6 px-3">
+                                        <input type="checkbox" name="Items[{{orderItemIndex}}].CleaningTypeOption" value="@(cleaningOption.Id)" />
+                                        @cleaningOption.Name
+                                    </label>
+                                }
                             </div>
-                        }
-                        <div class="form-group" style="max-width:4.5rem;">
-                            <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__SingleQuantityPrice">السعر</label>
-                            <input type="number" min="0" value="0" id="Items_{{orderItemIndex}}__SingleQuantityPrice" name="Items[{{orderItemIndex}}].SingleQuantityPrice" class="form-control" />
-                            <input type="hidden" id="Items_{{orderItemIndex}}__TotalItemPrice" value="0" />
                         </div>
+                    </div>
+                }
+                <div class="col-2">
+                    <div class="form-group">
+                        <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__SingleQuantityPrice">
+                            سعر القطعة
+                            <sup class="text-danger">*</sup>
+                        </label>
+                        <input type="number" min="0" value="0" id="Items_{{orderItemIndex}}__SingleQuantityPrice" 
+                            name="Items[{{orderItemIndex}}].SingleQuantityPrice" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="h6 mb-2 text-primary" for="Items_{{orderItemIndex}}__TotalItemPrice">
+                            السعر الكلي
+                        </label>
+                        <input class="form-control text-danger" type="text" disabled id="Items_{{orderItemIndex}}__TotalItemPrice" value="0" />
                     </div>
                 </div>
             </div>
@@ -260,3 +304,7 @@
         </div>
     </div>
 </template>
+
+@section Scripts {
+    <script src="~/js/create-order.js" asp-append-version="true"></script>
+}

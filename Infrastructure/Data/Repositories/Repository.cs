@@ -18,25 +18,58 @@ namespace Infrastructure.Data.Repositories
         }
 
         // Get Methods
-        public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        public async Task<T> GetByIdAsync(
+            Guid id,
+            CancellationToken cancellationToken = default,
+            params Expression<Func<T, object>>[] includes
+            )
         {
-            var entity = await _dbSet.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
-            if (entity == null)
+            IQueryable<T> query = _dbSet;
+
+            if (includes != null)
             {
-                throw new NotFoundException(typeof(T).Name, id);
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
             }
-            return entity;
+
+            var entity = await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            return entity ?? throw new NotFoundException(typeof(T).Name, id);
+        }
+
+        public async Task<T> GetByIdIncludeStringAsync(
+            Guid id,
+            CancellationToken cancellationToken = default,
+            params string[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = includes.Aggregate(query, (current, includeProperty) => current.Include(includeProperty));
+                }
+            }
+
+            var entity = await query.FirstOrDefaultAsync(e => e.Id == id, cancellationToken);
+            return entity ?? throw new NotFoundException(typeof(T).Name, id);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync(
             CancellationToken cancellationToken = default,
-            params Expression<Func<T, object>>[] includes)
+            params Expression<Func<T, object>>[] includes
+            )
         {
             IQueryable<T> query = _dbSet;
 
-            foreach (var include in includes)
+            if (includes != null)
             {
-                query = query.Include(include);
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
             }
 
             return await query.ToListAsync(cancellationToken);
@@ -45,13 +78,17 @@ namespace Infrastructure.Data.Repositories
         public async Task<IEnumerable<T>> GetByPredicateAsync(
             Expression<Func<T, bool>> predicate,
             CancellationToken cancellationToken = default,
-            params Expression<Func<T, object>>[] includes)
+            params Expression<Func<T, object>>[] includes
+            )
         {
             IQueryable<T> query = _dbSet;
 
-            foreach (var include in includes)
+            if (includes != null)
             {
-                query = query.Include(include);
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
             }
 
             return await query.Where(predicate).ToListAsync(cancellationToken);

@@ -47,12 +47,14 @@ namespace Domain.Entities.Orders
         {
             ArgumentNullException.ThrowIfNull(cleaningType);
             CleaningTypes.Add(cleaningType);
+            UpdateTimestamp();
         }
 
         public void RemoveCleaningType(CleaningType cleaningType)
         {
             ArgumentNullException.ThrowIfNull(cleaningType);
             CleaningTypes.Remove(cleaningType);
+            UpdateTimestamp();
         }
 
         public void UpdateQuantity(int quantity)
@@ -60,6 +62,7 @@ namespace Domain.Entities.Orders
             if (quantity <= 0) throw new ArgumentException("Quantity must be greater than 0.");
             Quantity = quantity;
             TotalPrice = Quantity * SingleQuantityPrice;
+            UpdateTimestamp();
         }
 
         public void UpdateSingleQuantityPrice(decimal singleQuantityPrice)
@@ -67,21 +70,25 @@ namespace Domain.Entities.Orders
             if (singleQuantityPrice <= 0) throw new ArgumentException("Price must be greater than 0.");
             SingleQuantityPrice = singleQuantityPrice;
             TotalPrice = Quantity * SingleQuantityPrice;
+            UpdateTimestamp();
         }
 
         public void UpdateColor(Color color)
         {
             Color = color;
+            UpdateTimestamp();
         }
 
         public void UpdateComment(string? comment)
         {
             Comment = comment?.Trim();
+            UpdateTimestamp();
         }
 
         public void UpdateDescription(string? description)
         {
             Description = description?.Trim();
+            UpdateTimestamp();
         }
     }
 }

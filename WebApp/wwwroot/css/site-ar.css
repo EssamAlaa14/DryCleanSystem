@@ -1,3 +1,19 @@
 ﻿body {
     direction: rtl;
 }
+
+table.dataTable tr {
+    vertical-align: middle;
+}
+
+table.dataTable thead th,
+table.dataTable thead td,
+table.dataTable tbody td,
+table.dataTable tfoot th,
+table.dataTable tfoot td {
+    text-align: center;
+}
+
+.date-format {
+    direction: ltr;
+}

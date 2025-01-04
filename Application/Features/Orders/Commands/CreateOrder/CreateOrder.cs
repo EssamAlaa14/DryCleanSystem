@@ -13,7 +13,8 @@ namespace Application.Features.Orders.Commands.CreateOrder
     public record CreateOrderCommand : IRequest<Unit>
     {
         public Guid? SelectedCustomerId { get; set; }
-        public CreateAddressDto? Address { get; set; }
+        public Guid? SelectedAddressId { get; set; }
+        public CreateAddressDto? NewAddress { get; set; }
         public CreateCustomerDto? NewCustomer { get; set; }
         public CreateOrderDto Order { get; set; }
     }
@@ -30,7 +31,7 @@ namespace Application.Features.Orders.Commands.CreateOrder
                     .NotNull()
                     .WithMessage("Customer information is required for a new customer.");
 
-                RuleFor(x => x.Address)
+                RuleFor(x => x.NewAddress)
                     .NotNull()
                     .WithMessage("Address information is required for a new customer.");
 
@@ -41,23 +42,50 @@ namespace Application.Features.Orders.Commands.CreateOrder
                 RuleFor(x => x.NewCustomer!.PrimaryPhone)
                     .NotEmpty().WithMessage("Primary phone is required.");
 
-                RuleFor(x => x.Address!.ApartmentNumber)
+                RuleFor(x => x.NewAddress!.ApartmentNumber)
                     .NotEmpty()
                     .WithMessage("Apartment number is required.");
 
-                RuleFor(x => x.Address!.FloorNumber)
+                RuleFor(x => x.NewAddress!.FloorNumber)
                     .NotEmpty()
                     .WithMessage("Floor number is required.");
 
-                RuleFor(x => x.Address!.BuildingName)
+                RuleFor(x => x.NewAddress!.BuildingName)
                     .NotEmpty()
                     .WithMessage("Building name is required.");
 
-                RuleFor(x => x.Address!.Street)
+                RuleFor(x => x.NewAddress!.Street)
                     .NotEmpty()
                     .WithMessage("Street is required.");
 
-                RuleFor(x => x.Address!.DistrictId)
+                RuleFor(x => x.NewAddress!.DistrictId)
+                    .NotEmpty()
+                    .WithMessage("District is required.");
+            });
+
+            When(x => x.SelectedAddressId == null, () =>
+            {
+                RuleFor(x => x.NewAddress)
+                    .NotNull()
+                    .WithMessage("Address information is required for a new customer.");
+
+                RuleFor(x => x.NewAddress!.ApartmentNumber)
+                    .NotEmpty()
+                    .WithMessage("Apartment number is required.");
+
+                RuleFor(x => x.NewAddress!.FloorNumber)
+                    .NotEmpty()
+                    .WithMessage("Floor number is required.");
+
+                RuleFor(x => x.NewAddress!.BuildingName)
+                    .NotEmpty()
+                    .WithMessage("Building name is required.");
+
+                RuleFor(x => x.NewAddress!.Street)
+                    .NotEmpty()
+                    .WithMessage("Street is required.");
+
+                RuleFor(x => x.NewAddress!.DistrictId)
                     .NotEmpty()
                     .WithMessage("District is required.");
             });
@@ -96,41 +124,58 @@ namespace Application.Features.Orders.Commands.CreateOrder
             {
                 // Handle Customer
                 Customer customer;
+                Address address;
                 if (request.SelectedCustomerId.HasValue)
                 {
                     customer = await _unitOfWork.Customers.GetByIdAsync(request.SelectedCustomerId.Value, cancellationToken);
                 }
                 else
                 {
-                    var address = new Address(
-                        request.Address!.ApartmentNumber,
-                        request.Address!.FloorNumber,
-                        request.Address!.BuildingName,
-                        request.Address!.Street,
-                        request.Address!.DistrictId
-                    );
-
                     customer = new Customer(
                         request.NewCustomer!.Name,
                         new Phone(request.NewCustomer.PrimaryPhone),
-                        null,
                         string.IsNullOrWhiteSpace(request.NewCustomer.SecondaryPhone)
                             ? null
                             : new Phone(request.NewCustomer.SecondaryPhone)
                     );
+                }
 
-                    customer.AddAddress(address);
+                if (request.SelectedAddressId.HasValue)
+                {
+                    address = await _unitOfWork.Addresses.GetByIdAsync(request.SelectedAddressId.Value, cancellationToken);
+                }
+                else
+                {
+                    address = new Address(
+                       request.NewAddress!.ApartmentNumber,
+                       request.NewAddress!.FloorNumber,
+                       request.NewAddress!.BuildingName,
+                       request.NewAddress!.Street,
+                       request.NewAddress!.DistrictId,
+                       customer.Id
+                   );
+                }
 
+                if (request.SelectedCustomerId.HasValue)
+                {
+                    if (!request.SelectedAddressId.HasValue && request.NewAddress != null)
+                    {
+                        customer.AddAddress(address);
+                        _unitOfWork.Customers.Update(customer);
+                    }
+                }
+                else
+                {
                     await _unitOfWork.Customers.AddAsync(customer, cancellationToken);
                 }
 
                 // Handle Order
                 var order = new Order(
                     customer.Id,
+                    address.Id,
                     request.Order.OrderType,
                     request.Order.OrderStatus,
                     request.Order.DeliveryFees ?? 0,
-                    request.Order.DeliveryDate,
                     request.Order.Notes
                     );
 

@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Features.Orders.Queries.GetAllOrders
 {
-    public class GetAllOrdersQuery : IRequest<List<OrderDto>>
+    public record GetAllOrdersQuery : IRequest<List<OrderDto>>
     {
     }
 
@@ -25,8 +25,8 @@ namespace Application.Features.Orders.Queries.GetAllOrders
 
         public async Task<List<OrderDto>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
         {
-            var orders = await _unitOfWork.Orders.GetAllAsync(cancellationToken, x => x.Customer);
-            var ordersList = _mapper.Map<List<OrderDto>>(orders);
+            var orders = await _unitOfWork.Orders.GetAllAsync(cancellationToken, x => x.Customer, x => x.Items);
+            var ordersList = _mapper.Map<List<OrderDto>>(orders.OrderByDescending(x => x.InvoiceNumber).ThenByDescending(x => x.TotalOrderPrice));
             return ordersList;
         }
     }

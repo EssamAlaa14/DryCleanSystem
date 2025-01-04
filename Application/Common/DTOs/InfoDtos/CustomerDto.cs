@@ -8,7 +8,6 @@ namespace Application.Common.DTOs.InfoDtos
         string name,
         string primaryPhone,
         string? secondaryPhone,
-        string? email,
         DateTime createdAt
         )
     {
@@ -16,7 +15,6 @@ namespace Application.Common.DTOs.InfoDtos
         public string Name { get; set; } = name;
         public string PrimaryPhone { get; set; } = primaryPhone;
         public string? SecondaryPhone { get; set; } = secondaryPhone;
-        public string? Email { get; set; } = email;
         public DateTime CreatedAt { get; set; } = createdAt;
 
         private class Mapping : Profile

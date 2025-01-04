@@ -27,12 +27,6 @@ namespace Infrastructure.Data.Configurations
                     v => v != null ? new Phone(v) : null)
                 .IsRequired(false);
 
-            builder.Property(c => c.Email)
-                .HasConversion(
-                    v => v != null ? v.Value : null,
-                    v => v != null ? new Email(v) : null)
-                .IsRequired(false);
-
             builder.HasMany(c => c.Addresses)
                  .WithOne(a => a.Customer)
                  .HasForeignKey(a => a.CustomerId);

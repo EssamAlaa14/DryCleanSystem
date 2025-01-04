@@ -21,16 +21,18 @@ namespace Domain.Entities
             ushort floorNumber,
             string buildingName,
             string street,
-            Guid districtId //,
-            //Guid customerId
+            Guid districtId,
+            Guid customerId
             )
         {
+            if (customerId == Guid.Empty) throw new ArgumentException("CustomerId cannot be empty.");
+
             AppartmentNumber = appartmentNumber ?? throw new ArgumentNullException(nameof(appartmentNumber));
             FloorNumber = floorNumber;
             BuildingName = buildingName ?? throw new ArgumentNullException(nameof(buildingName));
             Street = street ?? throw new ArgumentNullException(nameof(street));
             DistrictId = districtId;
-            //CustomerId = customerId;
+            CustomerId = customerId;
         }
 
         public void Update(
@@ -50,7 +52,7 @@ namespace Domain.Entities
 
         public override string ToString()
         {
-            return $"{AppartmentNumber}, {FloorNumber}, {BuildingName}, {Street}, {District.Name}";
+            return $"المنطقة: {District.Name}, الشارع:{Street}, المبني: {BuildingName}, الدور: {FloorNumber}, الشقة: {AppartmentNumber}";
         }
     }
 }

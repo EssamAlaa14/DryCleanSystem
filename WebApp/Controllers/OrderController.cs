@@ -1,7 +1,11 @@
-﻿using Application.Features.CleaningTypes.GetAllCleaningTypes;
+﻿using Application.Common.DTOs.UpdateDtos;
+using Application.Features.CleaningTypes.GetAllCleaningTypes;
 using Application.Features.Customers.Queries.GetAllCustomers;
+using Application.Features.Customers.Queries.GetCustomerAddresses;
 using Application.Features.Districts.Queries.GetAllDistricts;
+using Application.Features.Orders.Commands.UpdateOrderStatus;
 using Application.Features.Orders.Queries.GetAllOrders;
+using Application.Features.Orders.Queries.GetOrderById;
 using Application.Features.Pieces.Queries.GetAllPiecesByOrderType;
 using Domain.Enums;
 using MediatR;
@@ -71,6 +75,39 @@ namespace WebApp.Controllers
                 model.OrderListItemsModel = orderListModel;
                 return View(model);
             }
+        }
+
+        [HttpGet]
+        [Route("[controller]/[action]/{id}")]
+        public async Task<IActionResult> Details(Guid id, CancellationToken cancellationToken)
+        {
+            var order = await _mediator.Send(new GetOrderByIdQuery { Id = id }, cancellationToken);
+            return View(order);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Details([FromBody] UpdateOrderDto order, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _mediator.Send(new UpdateOrderStatusCommand { Id = order.OrderId, OrderStatus = order.OrderStatus }, cancellationToken);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while updating order status.");
+                ModelState.AddModelError(string.Empty, "An unexpected error occurred. Please try again later.");
+                return RedirectToAction("Index");
+            }
+        }
+
+        [HttpGet]
+        [Route("[controller]/[action]/{customerId}")]
+        public async Task<IActionResult> GetCustomerAddressesList(Guid customerId, CancellationToken cancellationToken)
+        {
+            var addressesList = await _mediator.Send(new GetCustomerAddressesQuery { CustomerId = customerId }, cancellationToken);
+            return Json(addressesList);
         }
 
         private async Task<BaseOrderListItemsViewModel> GetOrderListItemsViewModel(OrderType orderType, CancellationToken cancellationToken)
