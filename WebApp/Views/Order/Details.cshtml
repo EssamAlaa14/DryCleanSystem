@@ -110,6 +110,13 @@
                     <strong>ملاحظات:</strong>
                     <p class="fw-bold text-primary-emphasis">@(!string.IsNullOrEmpty(Model.Notes) ? Model.Notes : "لا يوجد")</p>
                 </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Reason))
+                {
+                    <div class="col-12 mt-3">
+                        <strong>السبب:</strong>
+                        <p class="fw-bold text-primary-emphasis">@Model.Reason</p>
+                    </div>
+                }
             </div>
         </div>
     </div>

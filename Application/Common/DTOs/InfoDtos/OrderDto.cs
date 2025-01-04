@@ -27,6 +27,7 @@ namespace Application.Common.DTOs.InfoDtos
         public int DeliveryFees { get; set; }
         public decimal TotalOrderPrice { get; set; }
         public string AddressDetails { get; set; }
+        public string? Reason { get; set; }
         public ICollection<OrderItemDto> Items { get; set; }
 
         private class Mapping : Profile

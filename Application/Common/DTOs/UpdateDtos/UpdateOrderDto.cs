@@ -6,5 +6,6 @@ namespace Application.Common.DTOs.UpdateDtos
     {
         public Guid OrderId { get; set; }
         public OrderStatus OrderStatus { get; set; }
+        public string? Reason { get; set; }
     }
 }

@@ -20,23 +20,42 @@
 $('#updateOrderModal').on('show.bs.modal', function (event) {
     var button = $(event.relatedTarget);
     var orderId = button.data('order-id');
+    var orderStatus = button.data('order-status');
     $('#orderId').val(orderId);
+    $('#order-status').val(orderStatus);
 });
+
+function onCancelOrder(event) {
+    const value = event?.value;
+
+    $('#order-reason').val('');
+    if (value == 5 || value == 6) {
+        $('#order-issue').removeClass('d-none');
+    } else {
+        $('#order-issue').addClass('d-none');
+    }
+}
 
 function confirmOrderChanges() {
     var orderId = $('#orderId').val();
     var orderStatus = $('#order-status').val();
+    var orderReason = $('#order-reason').val();
 
     if (orderStatus == null) {
         alert('من فضلك اختر حالة الطلب');
         return;
     }
+
     let order = {
         orderId: orderId,
         orderStatus: +orderStatus
     };
 
-    fetch("/order/Details", {
+    if (orderReason && orderReason.trim() !== '') {
+        order.reason = orderReason;
+    }
+
+    fetch("/order/UpdateOrderStatus", {
         method: 'POST',
         body: JSON.stringify(order),
         headers: {

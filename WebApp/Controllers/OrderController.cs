@@ -87,11 +87,17 @@ namespace WebApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Details([FromBody] UpdateOrderDto order, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateOrderStatus([FromBody] UpdateOrderDto order, CancellationToken cancellationToken)
         {
             try
             {
-                await _mediator.Send(new UpdateOrderStatusCommand { Id = order.OrderId, OrderStatus = order.OrderStatus }, cancellationToken);
+                var command = new UpdateOrderStatusCommand
+                {
+                    Id = order.OrderId,
+                    OrderStatus = order.OrderStatus,
+                    Reason = order.Reason
+                };
+                await _mediator.Send(command, cancellationToken);
                 return RedirectToAction("Index");
             }
             catch (Exception ex)

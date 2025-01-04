@@ -27,11 +27,11 @@
                 <td>@order.Notes</td>
                 <td>
                     <div><a class="btn btn-primary w-100" href="/order/details/@order.Id">التفاصيل</a></div>
-                    @if (order.OrderStatus != OrderStatus.Delivered)
+                    @if (order.OrderStatus != OrderStatus.Delivered && order.OrderStatus != OrderStatus.Canceled)
                     {
                         <div class="mt-2">
                             <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#updateOrderModal"
-                                    data-order-id="@order.Id">
+                                    data-order-id="@order.Id" data-order-status="@((int)order.OrderStatus)">
                                 تعديل
                             </button>
                         </div>
@@ -52,12 +52,18 @@
             <div class="modal-body">
                 <input type="hidden" id="orderId" />
                 <div class="form-group">
-                    <label class="text-danger font-weight-bold" for="order-status">حالة الطلب</label>
-                    <select class="form-control" required id="order-status">
+                    <label class="text-danger fw-bold" for="order-status">حالة الطلب</label>
+                    <select class="form-control" required id="order-status" onchange="onCancelOrder(this)">
                         <option value="@((int)OrderStatus.InProgress)"> @OrderStatus.InProgress.GetDisplayName() </option>
                         <option value="@((int)OrderStatus.Completed)"> @OrderStatus.Completed.GetDisplayName() </option>
                         <option value="@((int)OrderStatus.Delivered)"> @OrderStatus.Delivered.GetDisplayName() </option>
+                        <option value="@((int)OrderStatus.Issued)"> @OrderStatus.Issued.GetDisplayName() </option>
+                        <option value="@((int)OrderStatus.Canceled)"> @OrderStatus.Canceled.GetDisplayName() </option>
                     </select>
+                </div>
+                <div class="form-group d-none" id="order-issue">
+                    <label class="text-danger fw-bold">السبب</label>
+                    <input class="form-control" id="order-reason" type="text" placeholder="اكتب سبب الإلغاء أو المشكلة" />
                 </div>
             </div>
             <div class="modal-footer">

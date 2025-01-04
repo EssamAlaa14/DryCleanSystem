@@ -1,7 +1,6 @@
 ﻿using Application.Common.DTOs.CreateDtos;
 using Application.Common.Interfaces.Infrastructure;
 using Application.Validators;
-using AutoMapper;
 using Domain.Entities;
 using Domain.Entities.Orders;
 using Domain.ValueObjects;
@@ -109,12 +108,10 @@ namespace Application.Features.Orders.Commands.CreateOrder
     }
 
     public class CreateOrderCommandHandler(
-        IUnitOfWork unitOfWork,
-        IMapper mapper
+        IUnitOfWork unitOfWork
         ) : IRequestHandler<CreateOrderCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly IMapper _mapper = mapper;
 
         public async Task<Unit> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
@@ -160,12 +157,16 @@ namespace Application.Features.Orders.Commands.CreateOrder
                 {
                     if (!request.SelectedAddressId.HasValue && request.NewAddress != null)
                     {
-                        customer.AddAddress(address);
-                        _unitOfWork.Customers.Update(customer);
+                        await _unitOfWork.Addresses.AddAsync(address, cancellationToken);
                     }
                 }
                 else
                 {
+                    if (request.NewAddress != null)
+                    {
+                        customer.AddAddress(address);
+                    }
+
                     await _unitOfWork.Customers.AddAsync(customer, cancellationToken);
                 }
 

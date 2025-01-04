@@ -13,6 +13,8 @@ namespace Domain.Enums
         [Display(Name = "تم التسليم")]
         Delivered = 4,
         [Display(Name = "لديه مشكلة")]
-        Issued = 5
+        Issued = 5,
+        [Display(Name = "ملغي")]
+        Canceled = 6
     }
 }

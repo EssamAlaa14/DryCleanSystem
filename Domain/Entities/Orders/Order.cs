@@ -15,6 +15,7 @@ namespace Domain.Entities.Orders
         public long InvoiceNumber { get; private set; }
         public short? DeliveryFees { get; private set; }
         public string? Notes { get; private set; }
+        public string? Reason { get; private set; }
         public decimal TotalOrderPrice => Items.Sum(item => item.TotalPrice) + DeliveryFees ?? 0;
 
         // EF Core requires a private parameterless constructor for materialization
@@ -58,6 +59,12 @@ namespace Domain.Entities.Orders
         public void UpdateNotes(string? notes)
         {
             Notes = notes?.Trim();
+            UpdateTimestamp();
+        }
+
+        public void UpdateReason(string? reason)
+        {
+            Reason = reason?.Trim();
             UpdateTimestamp();
         }
 

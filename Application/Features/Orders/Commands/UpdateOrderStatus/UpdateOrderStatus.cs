@@ -9,6 +9,7 @@ namespace Application.Features.Orders.Commands.UpdateOrderStatus
     {
         public Guid Id { get; set; }
         public OrderStatus OrderStatus { get; set; }
+        public string? Reason { get; set; }
     }
 
     public class UpdateOrderStatusCommandValidator : AbstractValidator<UpdateOrderStatusCommand>
@@ -44,6 +45,10 @@ namespace Application.Features.Orders.Commands.UpdateOrderStatus
             {
                 var order = await _unitOfWork.Orders.GetByIdAsync(request.Id, cancellationToken);
                 order.UpdateOrderStatus(request.OrderStatus);
+                if (!string.IsNullOrWhiteSpace(request.Reason))
+                {
+                    order.UpdateReason(request.Reason);
+                }
                 _unitOfWork.Orders.Update(order);
                 await _unitOfWork.CommitAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);

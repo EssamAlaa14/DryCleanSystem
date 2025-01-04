@@ -54,8 +54,8 @@ p {
 }
 
 .status-1 {
-    color: white;
-    background-color: orangered;
+    color: black;
+    background-color: lightseagreen;
     padding: 0.25rem;
     border-radius: 0.25rem;
 }
@@ -81,6 +81,26 @@ p {
     border-radius: 0.25rem;
 }
 
+.status-5 {
+    color: white;
+    background-color: darkgoldenrod;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+}
+
+.status-6 {
+    color: white;
+    background-color: red;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.25rem;
+}
+
 div.dtsp-panesContainer div.dtsp-searchPane div.dtsp-topRow div.dtsp-subRow2 {
     display: none;
+}
+
+.form-title {
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    width: fit-content;
 }

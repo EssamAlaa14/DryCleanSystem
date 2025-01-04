@@ -224,6 +224,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("OrderType")
                         .HasColumnType("int");
 
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("RecordStatus")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")

@@ -5,6 +5,8 @@ const orderSummaryContainer = document.getElementById("orderSummaryContainer");
 const customerDropdown = document.getElementById("Command_SelectedCustomerId");
 const createOrderForm = document.getElementById("createOrderForm");
 const deliveryFeesInput = document.getElementById("Command_Order_DeliveryFees");
+const addressList = document.getElementById('addressList');
+const customerAddressDropdown = document.querySelector('[name="Command.SelectedAddressId"]')
 
 var totalPrice = 0;
 var totalQuantity = 0;
@@ -38,55 +40,77 @@ function filterCustomers() {
     const option = Array.from(options).find(x => x.text.toLowerCase().includes(searchValue));
     if (option) {
         customerDropdown.value = option.value;
+        if (customerDropdown && customerDropdown.value) {
+            addressList.classList.remove("d-none");
+            getCustomerAddresses(customerDropdown.value);
+        }
     } else {
         customerDropdown.value = "";
+        addressList.classList.add("d-none");
     }
 }
 
 function toggleNewCustomerForm(event) {
     const customerType = document.querySelector('input[name="Order.CustomerType"]:checked').value;
     const newCustomerForm = document.getElementById('newCustomerForm');
+    const newAddressForm = document.getElementById('newAddressForm');
     const existingCustomer = document.getElementById('existingCustomer');
-    const addressList = document.getElementById('addressList');
 
     if (customerType == 1) {
         existingCustomer.classList.add("d-none");
         addressList.classList.add("d-none");
         newCustomerForm.classList.remove("d-none");
+        newAddressForm.classList.remove("d-none");
         customerDropdown.value = "";
     } else {
         existingCustomer.classList.remove("d-none");
         newCustomerForm.classList.add("d-none");
-        fetch(`/Order/GetCustomerAddressesList/${event.value}`, {
-            method: 'GET'
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const addressSelect = document.getElementById('Command_SelectedAddressId');
-
-                // Clear existing options except the default one
-                addressSelect.innerHTML = '<option value="" disabled>-- إختر عنوان العميل --</option>';
-
-                // Populate the select with new options
-                data.forEach(address => {
-                    const option = document.createElement('option');
-                    option.value = address.id; // Assuming each address has a unique `id` property
-                    option.textContent = address.addressInfo; // Assuming `name` contains the display text
-                    addressSelect.appendChild(option);
-                });
-
-                addressList.classList.remove("d-none");
-            })
-            .catch(error => {
-                console.error('Error getting customer addresses:', error);
-                alert('خطأ في استرجاع عناوين العميل, يرجى المحاولة مرة أخرى');
-            });
+        newAddressForm.classList.add("d-none");
+        if (event && event.value) {
+            addressList.classList.remove("d-none");
+            getCustomerAddresses(event.value);
+        }
     }
+}
+
+function getCustomerAddresses(customerId) {
+    fetch(`/Order/GetCustomerAddressesList/${customerId}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.length === 0) {
+                document.getElementById("newAddressForm").classList.remove("d-none");
+                addressList.classList.add("d-none");
+                return;
+            }
+            document.getElementById("newAddressForm").classList.add("d-none");
+            addressList.classList.remove("d-none");
+
+            const addressSelect = document.getElementById('Command_SelectedAddressId');
+
+            // Clear existing options except the default one
+            addressSelect.innerHTML = '<option value="" disabled>-- إختر عنوان العميل --</option>';
+
+            // Populate the select with new options
+            data.forEach(address => {
+                const option = document.createElement('option');
+                option.value = address.id; // Assuming each address has a unique `id` property
+                option.textContent = address.addressInfo; // Assuming `name` contains the display text
+                addressSelect.appendChild(option);
+            });
+
+            addressList.classList.remove("d-none");
+        })
+        .catch(error => {
+            console.error('Error getting customer addresses:', error);
+            alert('خطأ في استرجاع عناوين العميل, يرجى المحاولة مرة أخرى');
+        });
 }
 
 function addOrderItem() {
@@ -170,6 +194,46 @@ function calculateTotalPrice() {
     setOrderSummary(totalQuantity, totalPrice);
 }
 
+function setNewCustomerFormValues(formData) {
+    const newCustomerForm = document.getElementById('newCustomerForm');
+    const newCustomerInputs = newCustomerForm.querySelectorAll('input, textarea, select');
+    newCustomerInputs.forEach(input => {
+        if (input.hasAttribute("data-required") && (input.value == "" || input.value == null)) {
+            alert("بعض بيانات العميل الجديد غير موجودة");
+            return;
+        }
+
+        if (input.name) {
+            formData.append(input.name, input.value);
+        }
+    });
+}
+
+function setNewCustomerAddressFormValues(formData) {
+    hasMissedValue = false;
+    const newCustomerAddressForm = document.getElementById('newAddressForm');
+    const newCustomerAddressInputs = newCustomerAddressForm.querySelectorAll('input, textarea, select');
+    for (let i = 0; i < newCustomerAddressInputs.length; i++) {
+        let input = newCustomerAddressInputs[i];
+        if (hasMissedValue) {
+            hasMissedValue = true;
+            break;
+        }
+
+        if (input.hasAttribute("data-required") && (input.value == "" || input.value == null)) {
+            alert("بعض تفاصيل عنوان العميل غير موجودة");
+            hasMissedValue = true;
+            return true;
+        }
+
+        if (input.name) {
+            formData.append(input.name, input.value);
+        }
+    }
+
+    return hasMissedValue == true;
+}
+
 function submitForm() {
     const formData = new FormData();
 
@@ -178,18 +242,8 @@ function submitForm() {
 
     if (customerType === "1") {
         // New Customer
-        const newCustomerForm = document.getElementById('newCustomerForm');
-        const newCustomerInputs = newCustomerForm.querySelectorAll('input, textarea, select');
-        newCustomerInputs.forEach(input => {
-            if (input.hasAttribute("data-required") && (input.value == "" || input.value == null)) {
-                alert("بعض تفاصيل العميل الجديد غير موجودة");
-                return;
-            }
-
-            if (input.name) {
-                formData.append(input.name, input.value);
-            }
-        });
+        setNewCustomerFormValues(formData);
+        setNewCustomerAddressFormValues(formData);
     } else if (customerType === "2") {
         // Existing Customer
         const selectedCustomerId = document.querySelector('select[name="Command.SelectedCustomerId"]').value;
@@ -206,12 +260,21 @@ function submitForm() {
     formData.append('Command.Order.DeliveryFees', document.querySelector('[name="Command.Order.DeliveryFees"]').value);
     formData.append('Command.Order.Notes', document.querySelector('[name="Command.Order.Notes"]').value);
 
-    const selectedAddress = document.querySelector('[name="Command.SelectedAddressId"]').value;
+    const selectedAddress = customerAddressDropdown.value;
+
     if (customerType === "2") {
-        if (isStringNullOrEmpty(selectedAddress)) {
-            alert("قم بإختيار عنوان العميل");
+        if (!selectedAddress && !customerAddressDropdown.classList.contains("d-none")) {
+            let hasMissedValue = setNewCustomerAddressFormValues(formData);
+            if (hasMissedValue) {
+                return;
+            }
         } else {
-            formData.append('Command.SelectedAddressId', selectedAddress);
+            if (isStringNullOrEmpty(selectedAddress)) {
+                alert("قم بإختيار عنوان العميل");
+                return;
+            } else {
+                formData.append('Command.SelectedAddressId', selectedAddress);
+            }
         }
     }
 
